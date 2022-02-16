@@ -59,7 +59,7 @@ public class DatabaseManager extends Manager {
             discordVerifyBot.setDatabase(db);
             try {
                 db.connect();
-                db.update("CREATE TABLE IF NOT EXISTS discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, group TEXT, timepoint TEXT, UNIQUE KEY(uuid, discordId))");
+                db.update("CREATE TABLE IF NOT EXISTS discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT, UNIQUE KEY(uuid, discordId))");
             } catch (SQLException e) {
                 e.printStackTrace();
                 log(Level.SEVERE, "Cloud not create MySQL-Connection: "+e);
@@ -79,7 +79,7 @@ public class DatabaseManager extends Manager {
 
             try {
                 db.connect();
-                db.update("CREATE TABLE IF NOT EXISTS discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, group TEXT, timepoint TEXT)");
+                db.update("CREATE TABLE IF NOT EXISTS discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT)");
             } catch (SQLException e) {
                 e.printStackTrace();
                 log(Level.SEVERE, "Cloud not create SQLite-Connection: "+e);

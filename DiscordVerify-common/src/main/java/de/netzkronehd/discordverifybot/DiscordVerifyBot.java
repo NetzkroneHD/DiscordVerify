@@ -1,8 +1,9 @@
 package de.netzkronehd.discordverifybot;
 
 import de.netzkronehd.discordverifybot.api.PluginVersion;
+import de.netzkronehd.discordverifybot.bot.DiscordBot;
 import de.netzkronehd.discordverifybot.database.Database;
-import de.netzkronehd.discordverifybot.manager.DatabaseManager;
+import de.netzkronehd.discordverifybot.manager.*;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import de.netzkronehd.discordverifybot.thread.ThreadService;
 
@@ -17,12 +18,19 @@ public class DiscordVerifyBot {
     private static DiscordVerifyBot instance;
 
     private final HashMap<UUID, DiscordPlayer> playerCache;
-    private Database database;
-    private DatabaseManager databaseManager;
     private final Logger logger;
     private final PluginVersion pluginVersion;
     private final ThreadService threadService;
 
+    private DiscordBot bot;
+    private Database database;
+
+    //Manager
+    private ConfigManager configManager;
+    private DatabaseManager databaseManager;
+    private GroupManager groupManager;
+    private MessageManager messageManager;
+    private VerifyManager verifyManager;
 
     public DiscordVerifyBot(Logger logger, PluginVersion pluginVersion, ThreadService threadService) {
         playerCache = new HashMap<>();
@@ -47,17 +55,18 @@ public class DiscordVerifyBot {
         playerCache.remove(discordPlayer.getUuid());
     }
 
+    public DiscordBot getBot() {
+        return bot;
+    }
     public PluginVersion getPluginVersion() {
         return pluginVersion;
     }
+
     public Database getDatabase() {
         return database;
     }
     public Logger getLogger() {
         return logger;
-    }
-    public DatabaseManager getDatabaseManager() {
-        return databaseManager;
     }
     public Collection<DiscordPlayer> getPlayers() {
         return Collections.unmodifiableCollection(playerCache.values());
@@ -65,11 +74,26 @@ public class DiscordVerifyBot {
     public ThreadService getThreadService() {
         return threadService;
     }
+    public ConfigManager getConfigManager() {
+        return configManager;
+    }
+    public DatabaseManager getDatabaseManager() {
+        return databaseManager;
+    }
+    public GroupManager getGroupManager() {
+        return groupManager;
+    }
+    public MessageManager getMessageManager() {
+        return messageManager;
+    }
+    public VerifyManager getVerifyManager() {
+        return verifyManager;
+    }
+
 
     public static void setInstance(DiscordVerifyBot instance) {
         DiscordVerifyBot.instance = instance;
     }
-
     public static DiscordVerifyBot getInstance() {
         return instance;
     }
