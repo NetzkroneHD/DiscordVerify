@@ -1,0 +1,4 @@
+name: DiscordVerify
+version: '${project.version}'
+main: de.netzkronehd.discordverifybot.DiscordVerifyBungeeCord
+author: NetzkroneHD
