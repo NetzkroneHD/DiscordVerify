@@ -102,8 +102,10 @@ public class GroupManager extends Manager {
         final List<Group> permissionGroup = new ArrayList<>();
         if(discordVerifyBot.getConfigManager().isMultipleGroups()) {
             for(Group group : groups.values()) {
+                if(group.equals(defaultGroup)) continue;
                 if(dp.hasPermission(group.getPermission())) permissionGroup.add(group);
             }
+            if(permissionGroup.isEmpty()) permissionGroup.add(defaultGroup);
         } else {
             Group highestGroup = null;
             for(Group group : groups.values()) {

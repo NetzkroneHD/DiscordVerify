@@ -18,6 +18,7 @@ public class DiscordVerifyBot {
     private static DiscordVerifyBot instance;
 
     private final HashMap<UUID, DiscordPlayer> playerCache;
+    private final HashMap<String, DiscordPlayer> playerNameCache;
     private final Logger logger;
     private final PluginVersion pluginVersion;
     private final ThreadService threadService;
@@ -28,12 +29,14 @@ public class DiscordVerifyBot {
     //Manager
     private ConfigManager configManager;
     private DatabaseManager databaseManager;
+    private DiscordCommandManager discordCommandManager;
     private GroupManager groupManager;
     private MessageManager messageManager;
     private VerifyManager verifyManager;
 
     public DiscordVerifyBot(Logger logger, PluginVersion pluginVersion, ThreadService threadService) {
         playerCache = new HashMap<>();
+        playerNameCache = new HashMap<>();
         this.logger = logger;
         this.pluginVersion = pluginVersion;
         this.threadService = threadService;
@@ -49,10 +52,12 @@ public class DiscordVerifyBot {
 
     public void join(DiscordPlayer discordPlayer) {
         playerCache.put(discordPlayer.getUuid(), discordPlayer);
+        playerNameCache.put(discordPlayer.getName().toLowerCase(), discordPlayer);
     }
 
     public void leave(DiscordPlayer discordPlayer) {
         playerCache.remove(discordPlayer.getUuid());
+        playerNameCache.remove(discordPlayer.getName().toLowerCase());
     }
 
     public DiscordBot getBot() {
@@ -80,6 +85,9 @@ public class DiscordVerifyBot {
     public DatabaseManager getDatabaseManager() {
         return databaseManager;
     }
+    public DiscordCommandManager getDiscordCommandManager() {
+        return discordCommandManager;
+    }
     public GroupManager getGroupManager() {
         return groupManager;
     }
@@ -90,6 +98,12 @@ public class DiscordVerifyBot {
         return verifyManager;
     }
 
+    public DiscordPlayer getPlayer(UUID uuid) {
+        return playerCache.get(uuid);
+    }
+    public DiscordPlayer getPlayer(String name) {
+        return playerNameCache.get(name.toLowerCase());
+    }
 
     public static void setInstance(DiscordVerifyBot instance) {
         DiscordVerifyBot.instance = instance;
