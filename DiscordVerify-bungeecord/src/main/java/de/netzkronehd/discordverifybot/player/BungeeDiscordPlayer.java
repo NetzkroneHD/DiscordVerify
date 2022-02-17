@@ -17,7 +17,12 @@ public class BungeeDiscordPlayer implements DiscordPlayer {
 
     @Override
     public void sendMessage(String text) {
-        proxiedPlayer.sendMessage(new TextComponent(text));
+        sendMessage(new TextComponent(text));
+    }
+
+    @Override
+    public void sendMessage(TextComponent textComponent) {
+        proxiedPlayer.sendMessage(textComponent);
     }
 
     @Override

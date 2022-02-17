@@ -87,6 +87,18 @@ public class GroupManager extends Manager {
 
     }
 
+    public void removeGroups(Member member) {
+        final List<Group> dcGroups = getGroups(member);
+        dcGroups.forEach(group -> {
+            Role role = group.getRole();
+            if(role == null) {
+                role = discordVerifyBot.getBot().getGuild().getRoleById(group.getRoleId());
+            }
+            assert role != null;
+            member.getGuild().removeRoleFromMember(member, role).queue();
+        });
+    }
+
     public List<Group> getGroups(Member member) {
         final List<Group> discordGroups = new ArrayList<>();
 

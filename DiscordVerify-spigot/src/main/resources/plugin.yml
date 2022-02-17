@@ -1,5 +1,13 @@
 name: DiscordVerify
 version: '${project.version}'
 main: de.netzkronehd.discordverifybot.DiscordVerifySpigot
-api-version: 1.18
+api-version: 1.13
 author: NetzkroneHD
+softdepend:
+  - PlaceholderAPI
+
+commands:
+  discordverify:
+    aliases:
+      - dcverify
+      - verify

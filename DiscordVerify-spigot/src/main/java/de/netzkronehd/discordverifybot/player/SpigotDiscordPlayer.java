@@ -1,6 +1,7 @@
 package de.netzkronehd.discordverifybot.player;
 
 import de.netzkronehd.discordverifybot.verification.DiscordVerification;
+import net.md_5.bungee.api.chat.TextComponent;
 import org.bukkit.entity.Player;
 
 import java.util.UUID;
@@ -17,6 +18,11 @@ public class SpigotDiscordPlayer implements DiscordPlayer {
     @Override
     public void sendMessage(String text) {
         player.sendMessage(text);
+    }
+
+    @Override
+    public void sendMessage(TextComponent textComponent) {
+        player.spigot().sendMessage(textComponent);
     }
 
     @Override

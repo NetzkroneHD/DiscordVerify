@@ -1,4 +1,4 @@
-package de.netzkronehd.discordverifybot.thread;
+package de.netzkronehd.discordverifybot.service;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBungeeCord;
 import net.md_5.bungee.api.ProxyServer;

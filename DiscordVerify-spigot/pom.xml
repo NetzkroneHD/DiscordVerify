@@ -60,7 +60,7 @@
             <groupId>de.netzkronehd</groupId>
             <artifactId>DiscordVerify-common</artifactId>
             <version>${project.version}</version>
-            <scope>compile</scope>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>me.clip</groupId>

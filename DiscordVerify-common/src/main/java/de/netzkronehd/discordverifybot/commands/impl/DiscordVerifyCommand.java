@@ -1,6 +1,7 @@
 package de.netzkronehd.discordverifybot.commands.impl;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
+import de.netzkronehd.discordverifybot.api.VerifyResult;
 import de.netzkronehd.discordverifybot.commands.DiscordCommand;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import net.dv8tion.jda.api.entities.*;
@@ -35,7 +36,17 @@ public class DiscordVerifyCommand extends DiscordCommand {
                         if(dp != null) {
                             if(!dp.isVerified()) {
                                 discordVerifyBot.getBot().getGuild().retrieveMemberById(sender.getId()).queue(member ->
-                                        discordVerifyBot.getVerifyManager().verify(dp, member));
+                                        discordVerifyBot.getVerifyManager().verify(dp, member, verifyResult -> {
+                                            if(verifyResult.isSucceed()) {
+                                                member.getUser().openPrivateChannel().queue(privateChannel ->
+                                                        privateChannel.sendMessage("You successfully linked your account with `"+dp.getName()+"`.").queue(message2 ->
+                                                                dp.sendMessage("You successfully linked your account with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7.")));
+                                            } else {
+                                                member.getUser().openPrivateChannel().queue(privateChannel ->
+                                                        privateChannel.sendMessage("The linking with `"+dp.getName()+"` was cancelled.").queue(message2 ->
+                                                                dp.sendMessage("The linking with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7 was&c cancelled.")));
+                                            }
+                                        }));
 
                             } else messageChannel.sendMessage("That player is already verified.").queue();
 

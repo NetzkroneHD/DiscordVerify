@@ -1,13 +1,14 @@
 package de.netzkronehd.discordverifybot.manager;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
-import de.netzkronehd.discordverifybot.api.VerifyUpdateResult;
+import de.netzkronehd.discordverifybot.api.VerifyResult;
 import de.netzkronehd.discordverifybot.group.Group;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -37,20 +38,98 @@ public class VerifyManager extends Manager {
         onLoad();
     }
 
-    public void verify(DiscordPlayer dp, Member member) {
+    public void verify(DiscordPlayer dp, Member member, Consumer<VerifyResult> callback) {
         if(!isVerified(dp.getUuid())) {
             if(!isVerified(member.getId())) {
-                final DiscordVerification discordVerification = new DiscordVerification(dp.getUuid(), dp.getName(), member.getId());
-                dp.setVerification(discordVerification);
-                member.getUser().openPrivateChannel().queue(privateChannel ->
-                        privateChannel.sendMessage("You successfully linked your account with `"+dp.getName()+"`.").queue(message ->
-                                dp.sendMessage("You successfully linked your account with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7.")));
+                final DiscordVerification dv = new DiscordVerification(dp.getUuid(), dp.getName(), member.getId(), System.currentTimeMillis());
 
-            } else throw new IllegalStateException("Member '"+member.getUser().getName()+"#"+member.getUser().getName()+"' is already verified.");
-        } else throw new IllegalStateException("Player '"+dp.getName()+"' is already verified.");
+                try {
+                    //discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT)
+                    discordVerifyBot.getDatabase().update("INSERT INTO discordVerification(uuid, name, discordId, timepoint) VALUES " +
+                            "('"+dv.getUuid()+"', '"+dv.getName()+"', '"+dv.getDiscordId()+"', '"+dv.getTimepoint()+"')");
+                    dp.setVerification(dv);
+                    callback.accept(VerifyResult.SUCCESS);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    callback.accept(VerifyResult.FAILED);
+                }
+
+
+            } else {
+                callback.accept(VerifyResult.CANCELLED);
+                throw new IllegalStateException("Member '"+member.getUser().getName()+"#"+member.getUser().getName()+"' is already verified.");
+            }
+        } else {
+            callback.accept(VerifyResult.CANCELLED);
+            throw new IllegalStateException("Player '"+dp.getName()+"' is already verified.");
+        }
     }
 
-    public void updateVerification(DiscordPlayer dp, Member member, Consumer<VerifyUpdateResult> callback) {
+
+    public void unVerify(String userId, Consumer<VerifyResult> callback) {
+        final DiscordVerification dv = getVerification(userId);
+        if(dv != null) {
+            try {
+                discordVerifyBot.getDatabase().update("DELETE * FROM discordVerifications WHERE discordId='"+userId+"'");
+                final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
+                if(dp != null) {
+                    dp.setVerification(null);
+                }
+                discordVerifyBot.getBot().getGuild().retrieveMemberById(userId).queue(member -> discordVerifyBot.getGroupManager().removeGroups(member));
+                callback.accept(VerifyResult.SUCCESS);
+            } catch (Exception e) {
+                e.printStackTrace();
+                callback.accept(VerifyResult.FAILED);
+            }
+        } else {
+            callback.accept(VerifyResult.CANCELLED);
+            throw new IllegalStateException("User '"+userId+"' is not verified.");
+        }
+    }
+
+    public void unVerify(Member member, Consumer<VerifyResult> callback) {
+        final DiscordVerification dv = getVerification(member.getId());
+        if(dv != null) {
+            try {
+                discordVerifyBot.getDatabase().update("DELETE * FROM discordVerifications WHERE discordId='"+member.getId()+"'");
+                final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
+                if(dp != null) {
+                    dp.setVerification(null);
+                }
+                discordVerifyBot.getGroupManager().removeGroups(member);
+                callback.accept(VerifyResult.SUCCESS);
+            } catch (Exception e) {
+                e.printStackTrace();
+                callback.accept(VerifyResult.FAILED);
+            }
+        } else {
+            callback.accept(VerifyResult.CANCELLED);
+            throw new IllegalStateException("Member '"+member.getUser().getName()+"#"+member.getUser().getName()+"' is not verified.");
+        }
+    }
+
+    public void unVerify(UUID uuid, Consumer<VerifyResult> callback) {
+        final DiscordVerification dv = getVerification(uuid);
+        if(dv != null) {
+            try {
+                discordVerifyBot.getDatabase().update("DELETE * FROM discordVerifications WHERE uuid='"+uuid+"'");
+                final DiscordPlayer dp = discordVerifyBot.getPlayer(uuid);
+                if(dp != null) {
+                    dp.setVerification(null);
+                }
+                dv.getMember().queue(member -> discordVerifyBot.getGroupManager().removeGroups(member));
+                callback.accept(VerifyResult.SUCCESS);
+            } catch (Exception e) {
+                e.printStackTrace();
+                callback.accept(VerifyResult.FAILED);
+            }
+        } else {
+            callback.accept(VerifyResult.CANCELLED);
+            throw new IllegalStateException("Player '"+uuid+"' is not verified.");
+        }
+    }
+
+    public void updateVerification(DiscordPlayer dp, Member member, Consumer<VerifyResult> callback) {
         if(dp.isVerified()) {
             try {
                 final List<Group> permissionGroup = discordVerifyBot.getGroupManager().getGroups(dp);
@@ -80,22 +159,34 @@ public class VerifyManager extends Manager {
                         }
                     }
                 }
-                callback.accept(VerifyUpdateResult.SUCCESS);
+                callback.accept(VerifyResult.SUCCESS);
             } catch (Exception e) {
                 e.printStackTrace();
-                callback.accept(VerifyUpdateResult.FAILED);
+                callback.accept(VerifyResult.FAILED);
             }
         } else {
-            callback.accept(VerifyUpdateResult.CANCELLED);
+            callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("The player '"+dp.getName()+"' has to be verified to update the verification.");
         }
 
     }
 
-    public void updateVerification(DiscordPlayer dp, Consumer<VerifyUpdateResult> callback) {
-        if(dp.getVerification().getMember() == null) {
-            discordVerifyBot.getBot().getGuild().retrieveMemberById(dp.getVerification().getDiscordId()).queue(member -> updateVerification(dp, member, callback));
-        } else updateVerification(dp, dp.getVerification().getMember(), callback);
+    public void updateVerification(DiscordPlayer dp, Consumer<VerifyResult> callback) {
+        if(dp.isVerified()) {
+            dp.getVerification().getMember().queue(member -> updateVerification(dp, member, callback));
+
+        } else {
+            callback.accept(VerifyResult.CANCELLED);
+            throw new IllegalStateException("The player '"+dp.getName()+"' has to be verified to update the verification.");
+        }
+    }
+
+    public DiscordVerification getVerification(UUID uuid) {
+        return null;
+    }
+
+    public DiscordVerification getVerification(String userId) {
+        return null;
     }
 
     public boolean isVerified(UUID uuid) {

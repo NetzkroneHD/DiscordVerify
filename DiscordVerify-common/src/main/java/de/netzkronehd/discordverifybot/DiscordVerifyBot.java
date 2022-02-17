@@ -1,16 +1,16 @@
 package de.netzkronehd.discordverifybot;
 
+import de.netzkronehd.discordverifybot.api.DiscordVerifyApi;
 import de.netzkronehd.discordverifybot.api.PluginVersion;
 import de.netzkronehd.discordverifybot.bot.DiscordBot;
 import de.netzkronehd.discordverifybot.database.Database;
 import de.netzkronehd.discordverifybot.manager.*;
+import de.netzkronehd.discordverifybot.message.MessageFormatter;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
-import de.netzkronehd.discordverifybot.thread.ThreadService;
+import de.netzkronehd.discordverifybot.service.EventService;
+import de.netzkronehd.discordverifybot.service.ThreadService;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.UUID;
+import java.util.*;
 import java.util.logging.Logger;
 
 public class DiscordVerifyBot {
@@ -22,9 +22,13 @@ public class DiscordVerifyBot {
     private final Logger logger;
     private final PluginVersion pluginVersion;
     private final ThreadService threadService;
+    private final EventService eventService;
+    private final MessageFormatter messageFormatter;
 
     private DiscordBot bot;
     private Database database;
+
+    private final DiscordVerifyApi api;
 
     //Manager
     private ConfigManager configManager;
@@ -34,12 +38,17 @@ public class DiscordVerifyBot {
     private MessageManager messageManager;
     private VerifyManager verifyManager;
 
-    public DiscordVerifyBot(Logger logger, PluginVersion pluginVersion, ThreadService threadService) {
-        playerCache = new HashMap<>();
-        playerNameCache = new HashMap<>();
+    public DiscordVerifyBot(Logger logger, PluginVersion pluginVersion, ThreadService threadService, EventService eventService, MessageFormatter messageFormatter) {
         this.logger = logger;
         this.pluginVersion = pluginVersion;
         this.threadService = threadService;
+        this.eventService = eventService;
+        this.messageFormatter = messageFormatter;
+
+        playerCache = new HashMap<>();
+        playerNameCache = new HashMap<>();
+        api = new DiscordVerifyApi(this);
+
     }
 
     public void onLoad() {
@@ -65,6 +74,12 @@ public class DiscordVerifyBot {
     }
     public PluginVersion getPluginVersion() {
         return pluginVersion;
+    }
+    public EventService getEventService() {
+        return eventService;
+    }
+    public MessageFormatter getMessageFormatter() {
+        return messageFormatter;
     }
 
     public Database getDatabase() {
@@ -103,6 +118,14 @@ public class DiscordVerifyBot {
     }
     public DiscordPlayer getPlayer(String name) {
         return playerNameCache.get(name.toLowerCase());
+    }
+
+    public boolean isReady() {
+        return (bot != null && bot.getJda() != null && !Objects.requireNonNull(bot.getJda().getPresence().getActivity(), "Activity can't be null").getName().equalsIgnoreCase("loading..."));
+    }
+
+    public DiscordVerifyApi getApi() {
+        return api;
     }
 
     public static void setInstance(DiscordVerifyBot instance) {

@@ -22,7 +22,7 @@ public class DiscordBot {
     private final String guildId;
     private JDA jda;
     private Guild guild;
-    private DiscordVerifyBot discordVerifyBot;
+    private final DiscordVerifyBot discordVerifyBot;
 
     public DiscordBot(DiscordVerifyBot discordVerifyBot, String token, String activity, String activityValue, String guildId) {
         this.discordVerifyBot = discordVerifyBot;

@@ -1,6 +1,8 @@
 package de.netzkronehd.discordverifybot.verification;
 
+import de.netzkronehd.discordverifybot.DiscordVerifyBot;
 import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.requests.RestAction;
 
 import java.util.UUID;
 
@@ -9,20 +11,17 @@ public class DiscordVerification {
     private final UUID uuid;
     private String name;
     private final String discordId;
-    private Member member;
+    private final long timepoint;
 
-    public DiscordVerification(UUID uuid, String name, String discordId) {
+    public DiscordVerification(UUID uuid, String name, String discordId, long timepoint) {
         this.uuid = uuid;
         this.name = name;
         this.discordId = discordId;
+        this.timepoint = timepoint;
     }
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public void setMember(Member member) {
-        this.member = member;
     }
 
     public UUID getUuid() {
@@ -37,8 +36,12 @@ public class DiscordVerification {
         return discordId;
     }
 
-    public Member getMember() {
-        return member;
+    public long getTimepoint() {
+        return timepoint;
+    }
+
+    public RestAction<Member> getMember() {
+        return DiscordVerifyBot.getInstance().getBot().getGuild().retrieveMemberById(discordId);
     }
 
 }

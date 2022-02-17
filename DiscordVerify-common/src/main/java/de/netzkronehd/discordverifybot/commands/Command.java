@@ -14,6 +14,6 @@ public abstract class Command {
     }
 
     public abstract void onExecute(DiscordPlayer dp, String[] args);
-    public abstract List<String> onTabComplete();
+    public abstract List<String> onTabComplete(DiscordPlayer dp, String[] args);
 
 }
