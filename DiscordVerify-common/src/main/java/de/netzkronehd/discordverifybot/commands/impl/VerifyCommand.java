@@ -2,6 +2,7 @@ package de.netzkronehd.discordverifybot.commands.impl;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
 import de.netzkronehd.discordverifybot.commands.Command;
+import de.netzkronehd.discordverifybot.message.Message;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import net.dv8tion.jda.api.entities.Member;
 
@@ -10,8 +11,9 @@ import java.util.List;
 
 public class VerifyCommand extends Command {
 
-    public VerifyCommand(DiscordVerifyBot discordVerifyBot) {
-        super(discordVerifyBot);
+
+    public VerifyCommand(DiscordVerifyBot discordVerifyBot, String name, String... alias) {
+        super(discordVerifyBot, name, alias);
     }
 
     @Override
@@ -27,21 +29,21 @@ public class VerifyCommand extends Command {
                                 discordVerifyBot.getVerifyManager().verify(dp, member, verifyResult -> {
                                     if(verifyResult.isSucceed()) {
                                         member.getUser().openPrivateChannel().queue(privateChannel ->
-                                                privateChannel.sendMessage("You successfully linked your account with `"+dp.getName()+"`.").queue(message ->
-                                                        dp.sendMessage("You successfully linked your account with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7.")));
+                                                privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_SUCCESSFULLY_LINKED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
+                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_LINKED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)));
                                     } else {
                                         member.getUser().openPrivateChannel().queue(privateChannel ->
-                                                privateChannel.sendMessage("The linking with `"+dp.getName()+"` was cancelled.").queue(message ->
-                                                        dp.sendMessage("The linking with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7 was&c cancelled&7.")));
+                                                privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_FAILED_TO_VERIFY, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
+                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_VERIFY, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)));
                                     }
                                 });
                             });
                         } else {
                             discordVerifyBot.getVerifyManager().getRequestsByDiscord().remove(dp.getUuid());
-                            dp.sendMessage("That user is already verified.");
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED, dp.getName(), null, null);
                         }
-                    } else dp.sendMessage("You didn't received a request.");
-                } else dp.sendMessage("You're already verified.");
+                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST, dp.getName(), null, null);
+                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED, dp.getName(), null, null);
             } else if(args[0].equalsIgnoreCase("deny")) {
                 if (!dp.isVerified()) {
                     final String userId = discordVerifyBot.getVerifyManager().getRequestsByDiscord().get(dp.getUuid());
@@ -49,44 +51,48 @@ public class VerifyCommand extends Command {
                         if(!discordVerifyBot.getVerifyManager().isVerified(userId)) {
                             discordVerifyBot.getBot().getGuild().retrieveMemberById(userId).queue(member ->
                                     member.getUser().openPrivateChannel().queue(privateChannel ->
-                                            privateChannel.sendMessage("`"+dp.getName()+"` denied your request.").queue(message ->
-                                                    dp.sendMessage("You successfully denied the request."))));
+                                            privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_PLAYER_DENIED_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
+                                                    discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_DENIED_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null))));
                         } else {
                             discordVerifyBot.getVerifyManager().getRequestsByDiscord().remove(dp.getUuid());
-                            dp.sendMessage("That user is already verified.");
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.USER_ALREADY_VERIFIED, dp.getName(), null, null);
                         }
-                    } else dp.sendMessage("You didn't received a request.");
-                } else dp.sendMessage("You're already verified.");
+                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST, dp.getName(), null, null);
+                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED, dp.getName(), null, null);
             } else if(args[0].equalsIgnoreCase("delete")) {
                 if(dp.isVerified()) {
                     dp.getVerification().getMember().queue(member -> discordVerifyBot.getVerifyManager().unVerify(dp.getUuid(), verifyResult -> {
                         if(verifyResult.isSucceed()) {
                             member.getUser().openPrivateChannel().queue(privateChannel ->
-                                    privateChannel.sendMessage("The link to `"+dp.getName()+"` was removed.").queue(message ->
-                                            dp.sendMessage("You successfully unlinked your account with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7.")));
+                                    privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_LINK_WAS_REMOVED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
+                                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UNLINKED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)));
                         } else {
-                            dp.sendMessage("The process of unlinking with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7 was&c cancelled&7.");
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null);
                         }
                     }), throwable -> discordVerifyBot.getVerifyManager().unVerify(dp.getUuid(), verifyResult -> {
                         if(verifyResult.isSucceed()) {
-                            dp.sendMessage("You successfully unlinked your account.");
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UNLINKED, dp.getName(), null, null);
                         } else {
-                            dp.sendMessage("The process of unlinking was&c cancelled&7.");
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED, dp.getName(), null, null);
                         }
                     }));
-                } else dp.sendMessage("You're not verified.");
+                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.NOT_VERIFIED, dp.getName(), null, null);
             } else if(args[0].equalsIgnoreCase("update")) {
-                dp.sendMessage("Updateing verification...");
-                discordVerifyBot.getThreadService().runAsync(() -> {
-
-                });
+                discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UPDATING, dp.getName(), null, null);
+                discordVerifyBot.getThreadService().runAsync(() ->
+                        discordVerifyBot.getVerifyManager().updateVerification(dp, verifyResult -> {
+                    if(verifyResult.isSucceed()) {
+                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UPDATED, dp.getName(), null, null);
+                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_UPDATE, dp.getName(), null, null);
+                }));
 
             } else if(args[0].contains("#")) {
-                dp.sendMessage("Searching user...");
+                dp.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.SEARCHING_USER, dp.getName(), null, null));
                 discordVerifyBot.getBot().getGuild().loadMembers().onSuccess(members -> {
                     for(Member member : members) {
                         if((member.getUser().getName()+"#"+member.getUser().getDiscriminator()).equals(args[0])) {
 
+                            return;
                         }
                     }
                 }).onError(throwable -> {

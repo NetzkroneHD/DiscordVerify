@@ -2,8 +2,9 @@ package de.netzkronehd.discordverifybot;
 
 import de.netzkronehd.discordverifybot.api.PluginVersion;
 import de.netzkronehd.discordverifybot.message.SpigotMessageFormatter;
-import de.netzkronehd.discordverifybot.service.SpigotEventService;
-import de.netzkronehd.discordverifybot.service.SpigotThreadService;
+import de.netzkronehd.discordverifybot.service.impl.BungeeCommandService;
+import de.netzkronehd.discordverifybot.service.impl.SpigotEventService;
+import de.netzkronehd.discordverifybot.service.impl.SpigotThreadService;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public final class DiscordVerifySpigot extends JavaPlugin {
@@ -14,7 +15,7 @@ public final class DiscordVerifySpigot extends JavaPlugin {
     @Override
     public void onLoad() {
         instance = this;
-        final DiscordVerifyBot discordVerifyBot = new DiscordVerifyBot(getLogger(), PluginVersion.SPIGOT, new SpigotThreadService(), new SpigotEventService(), new SpigotMessageFormatter());
+        final DiscordVerifyBot discordVerifyBot = new DiscordVerifyBot(getLogger(), PluginVersion.SPIGOT, new SpigotThreadService(), new SpigotEventService(), new SpigotMessageFormatter(), new BungeeCommandService());
         DiscordVerifyBot.setInstance(discordVerifyBot);
         this.discordVerifyBot = discordVerifyBot;
     }

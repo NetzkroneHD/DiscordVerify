@@ -1,7 +1,9 @@
-package de.netzkronehd.discordverifybot.service;
+package de.netzkronehd.discordverifybot.service.impl;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
+import de.netzkronehd.discordverifybot.commands.DiscordCommand;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
+import de.netzkronehd.discordverifybot.service.EventService;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
@@ -36,7 +38,7 @@ public class SpigotEventService implements EventService {
     }
 
     @Override
-    public boolean fireDiscordCommandPreProcessEvent(User sender, MessageChannel messageChannel, String[] args, Message message) {
+    public boolean fireDiscordCommandPreProcessEvent(DiscordCommand discordCommand, User sender, MessageChannel messageChannel, String[] args, Message message) {
         return false;
     }
 }

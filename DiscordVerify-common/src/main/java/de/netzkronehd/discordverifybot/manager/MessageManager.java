@@ -16,6 +16,7 @@ public class MessageManager extends Manager {
         super(discordVerifyBot);
         file = new File("plugins/DiscordVerifyBot", "messages.yml");
         cfg = YamlConfiguration.loadConfiguration(file);
+        setPriority(2);
     }
 
     @Override

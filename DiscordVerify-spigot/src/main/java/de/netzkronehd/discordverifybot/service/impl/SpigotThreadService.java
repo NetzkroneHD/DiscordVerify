@@ -1,6 +1,7 @@
-package de.netzkronehd.discordverifybot.service;
+package de.netzkronehd.discordverifybot.service.impl;
 
 import de.netzkronehd.discordverifybot.DiscordVerifySpigot;
+import de.netzkronehd.discordverifybot.service.ThreadService;
 import org.bukkit.Bukkit;
 
 public class SpigotThreadService implements ThreadService {

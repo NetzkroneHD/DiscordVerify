@@ -1,10 +1,11 @@
 package de.netzkronehd.discordverifybot.listener;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
-import de.netzkronehd.discordverifybot.bot.DiscordBot;
+import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.ReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -32,12 +33,21 @@ public class DiscordListener extends ListenerAdapter {
             discordVerifyBot.getBot().getDiscordVerifyBot().getLogger().warning("Cloud not find method '"+discordVerifyBot.getBot().getActivity()+"', using 'playing' instead.");
         }
         discordVerifyBot.getBot().setGuild(e.getJDA().getGuildById(discordVerifyBot.getBot().getGuildId()));
+        if(discordVerifyBot.getBot().getGuild() == null) discordVerifyBot.getLogger().severe("Cloud not find guild '"+discordVerifyBot.getBot().getGuildId()+"'");
     }
 
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent e) {
         if(e.getMessage().getContentRaw().startsWith("!")) {
             discordVerifyBot.getDiscordCommandManager().executeCommand(e.getMessage().getContentRaw(), e.getAuthor(), e.getMember(), e.getChannel(), e.getMessage());
+        }
+    }
+
+    @Override
+    public void onGuildMemberRemove(@NotNull GuildMemberRemoveEvent e) {
+        final DiscordVerification dv = discordVerifyBot.getVerifyManager().getVerification(e.getUser().getId());
+        if(dv != null) {
+            discordVerifyBot.getThreadService().runAsync(() -> discordVerifyBot.getVerifyManager().unVerify(e.getUser().getId(), verifyResult -> {}));
         }
     }
 }

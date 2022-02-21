@@ -23,6 +23,7 @@ public class DiscordVerifyApi {
         return discordVerifyBot.getVerifyManager().getVerification(userId);
     }
 
+
     public void registerCommand(DiscordCommand dc) {
         discordVerifyBot.getDiscordCommandManager().registerCommand(dc);
     }

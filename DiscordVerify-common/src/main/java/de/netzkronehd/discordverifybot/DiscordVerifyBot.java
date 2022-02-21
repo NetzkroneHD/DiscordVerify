@@ -7,6 +7,7 @@ import de.netzkronehd.discordverifybot.database.Database;
 import de.netzkronehd.discordverifybot.manager.*;
 import de.netzkronehd.discordverifybot.message.MessageFormatter;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
+import de.netzkronehd.discordverifybot.service.CommandService;
 import de.netzkronehd.discordverifybot.service.EventService;
 import de.netzkronehd.discordverifybot.service.ThreadService;
 
@@ -24,6 +25,7 @@ public class DiscordVerifyBot {
     private final ThreadService threadService;
     private final EventService eventService;
     private final MessageFormatter messageFormatter;
+    private final CommandService commandService;
 
     private DiscordBot bot;
     private Database database;
@@ -38,12 +40,13 @@ public class DiscordVerifyBot {
     private MessageManager messageManager;
     private VerifyManager verifyManager;
 
-    public DiscordVerifyBot(Logger logger, PluginVersion pluginVersion, ThreadService threadService, EventService eventService, MessageFormatter messageFormatter) {
+    public DiscordVerifyBot(Logger logger, PluginVersion pluginVersion, ThreadService threadService, EventService eventService, MessageFormatter messageFormatter, CommandService commandService) {
         this.logger = logger;
         this.pluginVersion = pluginVersion;
         this.threadService = threadService;
         this.eventService = eventService;
         this.messageFormatter = messageFormatter;
+        this.commandService = commandService;
 
         playerCache = new HashMap<>();
         playerNameCache = new HashMap<>();
@@ -62,6 +65,17 @@ public class DiscordVerifyBot {
     public void join(DiscordPlayer discordPlayer) {
         playerCache.put(discordPlayer.getUuid(), discordPlayer);
         playerNameCache.put(discordPlayer.getName().toLowerCase(), discordPlayer);
+
+        discordPlayer.setVerification(verifyManager.getVerification(discordPlayer.getUuid()));
+        if(discordPlayer.isVerified()) {
+            if(isReady()) {
+                verifyManager.updateVerification(discordPlayer);
+            }
+            if(!discordPlayer.getVerification().getName().equalsIgnoreCase(discordPlayer.getName())) {
+                threadService.runAsync(() -> verifyManager.updateName(discordPlayer.getUuid(), discordPlayer.getName()));
+            }
+        }
+
     }
 
     public void leave(DiscordPlayer discordPlayer) {
@@ -74,6 +88,12 @@ public class DiscordVerifyBot {
     }
     public PluginVersion getPluginVersion() {
         return pluginVersion;
+    }
+    public ThreadService getThreadService() {
+        return threadService;
+    }
+    public CommandService getCommandService() {
+        return commandService;
     }
     public EventService getEventService() {
         return eventService;
@@ -90,9 +110,6 @@ public class DiscordVerifyBot {
     }
     public Collection<DiscordPlayer> getPlayers() {
         return Collections.unmodifiableCollection(playerCache.values());
-    }
-    public ThreadService getThreadService() {
-        return threadService;
     }
     public ConfigManager getConfigManager() {
         return configManager;

@@ -1,9 +1,9 @@
 package de.netzkronehd.discordverifybot.commands.impl;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
-import de.netzkronehd.discordverifybot.api.VerifyResult;
 import de.netzkronehd.discordverifybot.commands.DiscordCommand;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
+import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.dv8tion.jda.api.entities.*;
 
 import java.util.UUID;
@@ -69,8 +69,18 @@ public class DiscordVerifyCommand extends DiscordCommand {
                     } else messageChannel.sendMessage("You didn't received a request.").queue();
                 } else messageChannel.sendMessage("You're already verified.").queue();
             } else if(args[0].equalsIgnoreCase("delete")) {
-                if(discordVerifyBot.getVerifyManager().isVerified(sender.getId())) {
-
+                final DiscordVerification dv = discordVerifyBot.getApi().getVerification(sender.getId());
+                if(dv != null) {
+                   discordVerifyBot.getVerifyManager().unVerify(sender.getId(), verifyResult -> {
+                       if(verifyResult.isSucceed()) {
+                           final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
+                           if(dp != null) {
+                               dp.sendMessage("The link to&e "+sender.getName()+"#"+sender.getDiscriminator()+"&7 was removed.");
+                           }
+                       } else {
+                           messageChannel.sendMessage("You successfully unlinked your account with `"+dv.getName()+"`.").queue();
+                       }
+                   });
                 } else messageChannel.sendMessage("You're not verified.").queue();
             } else {
                 final DiscordPlayer dp = discordVerifyBot.getPlayer(args[0]);

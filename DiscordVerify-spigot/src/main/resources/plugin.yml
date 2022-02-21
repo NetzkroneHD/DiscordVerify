@@ -11,3 +11,7 @@ commands:
     aliases:
       - dcverify
       - verify
+      - link
+      - dclink
+      - linkdiscord
+      - linkdc

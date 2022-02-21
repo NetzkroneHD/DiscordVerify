@@ -8,6 +8,7 @@ import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Role;
 
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +18,11 @@ import java.util.logging.Level;
 
 public class VerifyManager extends Manager {
 
+    private final HashMap<UUID, DiscordVerification> verifications;
+    private final HashMap<String, DiscordVerification> verificationsByUserId;
+
+
+
     private final HashMap<UUID, String> requestsByDiscord;
     private final HashMap<String, UUID> requestsByMinecraft;
 
@@ -25,16 +31,36 @@ public class VerifyManager extends Manager {
         super(discordVerifyBot);
         requestsByDiscord = new HashMap<>();
         requestsByMinecraft = new HashMap<>();
-
+        verifications = new HashMap<>();
+        verificationsByUserId = new HashMap<>();
     }
 
     @Override
     public void onLoad() {
+        //discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT)
+        try {
+            final ResultSet rs = discordVerifyBot.getDatabase().getResult("SELECT * FROM discordVerification");
+            while(rs.next()) {
+                final DiscordVerification dv = new DiscordVerification(UUID.fromString(rs.getString("uuid")), rs.getString("name"), rs.getString("discordId"), rs.getLong("timepoint"));
+                verifications.put(dv.getUuid(), dv);
+                verificationsByUserId.put(dv.getDiscordId(), dv);
+                final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
+                if(dp != null) dp.setVerification(dv);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
     }
 
     @Override
     public void onReload() {
+        verifications.clear();
+        verificationsByUserId.clear();
+        requestsByMinecraft.clear();
+        requestsByDiscord.clear();
+        discordVerifyBot.getPlayers().forEach(discordPlayer -> discordPlayer.setVerification(null));
         onLoad();
     }
 
@@ -47,20 +73,22 @@ public class VerifyManager extends Manager {
                     //discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT)
                     discordVerifyBot.getDatabase().update("INSERT INTO discordVerification(uuid, name, discordId, timepoint) VALUES " +
                             "('"+dv.getUuid()+"', '"+dv.getName()+"', '"+dv.getDiscordId()+"', '"+dv.getTimepoint()+"')");
+                    verifications.put(dv.getUuid(), dv);
+                    verificationsByUserId.put(dv.getDiscordId(), dv);
                     dp.setVerification(dv);
-                    callback.accept(VerifyResult.SUCCESS);
+                    if(callback != null) callback.accept(VerifyResult.SUCCESS);
                 } catch (SQLException e) {
                     e.printStackTrace();
-                    callback.accept(VerifyResult.FAILED);
+                    if(callback != null) callback.accept(VerifyResult.FAILED);
                 }
 
 
             } else {
-                callback.accept(VerifyResult.CANCELLED);
+                if(callback != null) callback.accept(VerifyResult.CANCELLED);
                 throw new IllegalStateException("Member '"+member.getUser().getName()+"#"+member.getUser().getName()+"' is already verified.");
             }
         } else {
-            callback.accept(VerifyResult.CANCELLED);
+            if(callback != null) callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("Player '"+dp.getName()+"' is already verified.");
         }
     }
@@ -71,18 +99,20 @@ public class VerifyManager extends Manager {
         if(dv != null) {
             try {
                 discordVerifyBot.getDatabase().update("DELETE * FROM discordVerifications WHERE discordId='"+userId+"'");
+                verifications.remove(dv.getUuid());
+                verificationsByUserId.remove(dv.getDiscordId());
                 final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
                 if(dp != null) {
                     dp.setVerification(null);
                 }
                 discordVerifyBot.getBot().getGuild().retrieveMemberById(userId).queue(member -> discordVerifyBot.getGroupManager().removeGroups(member));
-                callback.accept(VerifyResult.SUCCESS);
+                if(callback != null) callback.accept(VerifyResult.SUCCESS);
             } catch (Exception e) {
                 e.printStackTrace();
-                callback.accept(VerifyResult.FAILED);
+                if(callback != null) callback.accept(VerifyResult.FAILED);
             }
         } else {
-            callback.accept(VerifyResult.CANCELLED);
+            if(callback != null) callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("User '"+userId+"' is not verified.");
         }
     }
@@ -92,18 +122,20 @@ public class VerifyManager extends Manager {
         if(dv != null) {
             try {
                 discordVerifyBot.getDatabase().update("DELETE * FROM discordVerifications WHERE discordId='"+member.getId()+"'");
+                verifications.remove(dv.getUuid());
+                verificationsByUserId.remove(dv.getDiscordId());
                 final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
                 if(dp != null) {
                     dp.setVerification(null);
                 }
                 discordVerifyBot.getGroupManager().removeGroups(member);
-                callback.accept(VerifyResult.SUCCESS);
+                if(callback != null) callback.accept(VerifyResult.SUCCESS);
             } catch (Exception e) {
                 e.printStackTrace();
-                callback.accept(VerifyResult.FAILED);
+                if(callback != null) callback.accept(VerifyResult.FAILED);
             }
         } else {
-            callback.accept(VerifyResult.CANCELLED);
+            if(callback != null) callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("Member '"+member.getUser().getName()+"#"+member.getUser().getName()+"' is not verified.");
         }
     }
@@ -113,18 +145,20 @@ public class VerifyManager extends Manager {
         if(dv != null) {
             try {
                 discordVerifyBot.getDatabase().update("DELETE * FROM discordVerifications WHERE uuid='"+uuid+"'");
+                verifications.remove(dv.getUuid());
+                verificationsByUserId.remove(dv.getDiscordId());
                 final DiscordPlayer dp = discordVerifyBot.getPlayer(uuid);
                 if(dp != null) {
                     dp.setVerification(null);
                 }
                 dv.getMember().queue(member -> discordVerifyBot.getGroupManager().removeGroups(member));
-                callback.accept(VerifyResult.SUCCESS);
+                if(callback != null) callback.accept(VerifyResult.SUCCESS);
             } catch (Exception e) {
                 e.printStackTrace();
-                callback.accept(VerifyResult.FAILED);
+                if(callback != null) callback.accept(VerifyResult.FAILED);
             }
         } else {
-            callback.accept(VerifyResult.CANCELLED);
+            if(callback != null) callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("Player '"+uuid+"' is not verified.");
         }
     }
@@ -132,6 +166,7 @@ public class VerifyManager extends Manager {
     public void updateVerification(DiscordPlayer dp, Member member, Consumer<VerifyResult> callback) {
         if(dp.isVerified()) {
             try {
+                dp.getVerification().setName(dp.getName());
                 final List<Group> permissionGroup = discordVerifyBot.getGroupManager().getGroups(dp);
                 final List<Group> discordGroup = discordVerifyBot.getGroupManager().getGroups(member);
                 for(Group group : discordGroup) {
@@ -159,13 +194,13 @@ public class VerifyManager extends Manager {
                         }
                     }
                 }
-                callback.accept(VerifyResult.SUCCESS);
+                if(callback != null) callback.accept(VerifyResult.SUCCESS);
             } catch (Exception e) {
                 e.printStackTrace();
-                callback.accept(VerifyResult.FAILED);
+                if(callback != null) callback.accept(VerifyResult.FAILED);
             }
         } else {
-            callback.accept(VerifyResult.CANCELLED);
+            if(callback != null) callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("The player '"+dp.getName()+"' has to be verified to update the verification.");
         }
 
@@ -176,10 +211,25 @@ public class VerifyManager extends Manager {
             dp.getVerification().getMember().queue(member -> updateVerification(dp, member, callback));
 
         } else {
-            callback.accept(VerifyResult.CANCELLED);
+            if(callback != null) callback.accept(VerifyResult.CANCELLED);
             throw new IllegalStateException("The player '"+dp.getName()+"' has to be verified to update the verification.");
         }
     }
+
+    public void updateVerification(DiscordPlayer dp) {
+        updateVerification(dp, null);
+    }
+
+    public void updateName(UUID uuid, String name) {
+        if(isVerified(uuid)) {
+            try {
+                discordVerifyBot.getDatabase().update("UPDATE discordVerification SET name='"+name+"' WHERE uuid='"+uuid+"'");
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public DiscordVerification getVerification(UUID uuid) {
         return null;
