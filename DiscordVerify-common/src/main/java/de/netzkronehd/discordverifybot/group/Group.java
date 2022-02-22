@@ -1,6 +1,5 @@
 package de.netzkronehd.discordverifybot.group;
 
-
 import net.dv8tion.jda.api.entities.Role;
 
 import java.util.Objects;

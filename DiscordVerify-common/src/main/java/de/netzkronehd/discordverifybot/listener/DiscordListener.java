@@ -2,16 +2,12 @@ package de.netzkronehd.discordverifybot.listener;
 
 import de.netzkronehd.discordverifybot.DiscordVerifyBot;
 import de.netzkronehd.discordverifybot.verification.DiscordVerification;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.ReadyEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
-
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 
 public class DiscordListener extends ListenerAdapter {
 
@@ -23,17 +19,22 @@ public class DiscordListener extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent e) {
-        e.getJDA().getPresence().setStatus(OnlineStatus.ONLINE);
-        try {
-            final Method activityMethod = Activity.class.getMethod(discordVerifyBot.getBot().getActivity(), String.class);
-            activityMethod.setAccessible(true);
-            e.getJDA().getPresence().setActivity((Activity) activityMethod.invoke(this, discordVerifyBot.getBot().getActivityValue()));
-        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException ex) {
-            e.getJDA().getPresence().setActivity(Activity.playing(discordVerifyBot.getBot().getActivityValue()));
-            discordVerifyBot.getBot().getDiscordVerifyBot().getLogger().warning("Cloud not find method '"+discordVerifyBot.getBot().getActivity()+"', using 'playing' instead.");
-        }
+        e.getJDA().getPresence().setStatus(discordVerifyBot.getBot().getLoadedStatus());
+        e.getJDA().getPresence().setActivity(discordVerifyBot.getBot().getLoadedActivity());
         discordVerifyBot.getBot().setGuild(e.getJDA().getGuildById(discordVerifyBot.getBot().getGuildId()));
-        if(discordVerifyBot.getBot().getGuild() == null) discordVerifyBot.getLogger().severe("Cloud not find guild '"+discordVerifyBot.getBot().getGuildId()+"'");
+        if(discordVerifyBot.getBot().getGuild() == null) {
+            discordVerifyBot.getLogger().severe("Cloud not find guild '"+discordVerifyBot.getBot().getGuildId()+"'.");
+            return;
+        }
+
+        discordVerifyBot.getGroupManager().getGroups().values().forEach(group -> {
+            final Role role = discordVerifyBot.getBot().getGuild().getRoleById(group.getRoleId());
+            if(role != null) {
+                group.setRole(role);
+            } else discordVerifyBot.getLogger().severe("Cloud not find role of the group '"+group.getId()+"'. Please check if this is the correct RoleId '"+group.getRoleId()+"'.");
+        });
+
+
     }
 
     @Override

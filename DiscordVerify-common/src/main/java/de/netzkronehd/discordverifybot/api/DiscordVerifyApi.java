@@ -23,7 +23,6 @@ public class DiscordVerifyApi {
         return discordVerifyBot.getVerifyManager().getVerification(userId);
     }
 
-
     public void registerCommand(DiscordCommand dc) {
         discordVerifyBot.getDiscordCommandManager().registerCommand(dc);
     }
@@ -31,6 +30,7 @@ public class DiscordVerifyApi {
     public void unregisterCommand(DiscordCommand dc) {
         discordVerifyBot.getDiscordCommandManager().unregisterCommand(dc);
     }
+
     public void unregisterCommand(String commandPrefix) {
         discordVerifyBot.getDiscordCommandManager().unregisterCommand(commandPrefix);
     }
@@ -42,5 +42,6 @@ public class DiscordVerifyApi {
     public boolean isReady() {
         return discordVerifyBot.isReady();
     }
+
 }
 

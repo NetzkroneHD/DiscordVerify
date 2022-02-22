@@ -27,7 +27,7 @@ public abstract class Database {
     }
 
     public abstract void connect() throws SQLException;
-    public void disConnect() throws SQLException {
+    public void disconnect() throws SQLException {
         con.close();
     }
     public boolean isConnected() {

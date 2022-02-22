@@ -18,8 +18,10 @@ public class DatabaseManager extends Manager {
 
     public DatabaseManager(DiscordVerifyBot discordVerifyBot) {
         super(discordVerifyBot);
+        setPriority(3);
         file = new File("plugins/DiscordVerifyBot", "database.yml");
         cfg = YamlConfiguration.loadConfiguration(file);
+
 
     }
 

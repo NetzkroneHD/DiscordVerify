@@ -14,22 +14,26 @@ import java.util.Arrays;
 
 public class DiscordBot {
 
-    public final static GatewayIntent[] INTENTS = {
+    private final static GatewayIntent[] INTENTS = {
             GatewayIntent.GUILD_MESSAGES,
             GatewayIntent.GUILD_MEMBERS};
 
-    private final String token, activity, activityValue;
+    private final String token;
+    private final Activity loadingActivity, loadedActivity;
     private final String guildId;
     private JDA jda;
     private Guild guild;
+    private final OnlineStatus loadingStatus, loadedStatus;
     private final DiscordVerifyBot discordVerifyBot;
 
-    public DiscordBot(DiscordVerifyBot discordVerifyBot, String token, String activity, String activityValue, String guildId) {
+    public DiscordBot(DiscordVerifyBot discordVerifyBot, String token, Activity loadingActivity, Activity loadedActivity, String guildId, OnlineStatus loadingStatus, OnlineStatus loadedStatus) {
         this.discordVerifyBot = discordVerifyBot;
         this.token = token;
-        this.activity = activity;
-        this.activityValue = activityValue;
+        this.loadingActivity = loadingActivity;
+        this.loadedActivity = loadedActivity;
         this.guildId = guildId;
+        this.loadingStatus = loadingStatus;
+        this.loadedStatus = loadedStatus;
 
     }
 
@@ -39,13 +43,20 @@ public class DiscordBot {
                 jda = JDABuilder.create(token, Arrays.asList(INTENTS))
                         .enableCache(CacheFlag.MEMBER_OVERRIDES, CacheFlag.VOICE_STATE)
                         .disableCache(CacheFlag.ACTIVITY, CacheFlag.CLIENT_STATUS, CacheFlag.EMOTE)
-                        .setActivity(Activity.playing("loading..."))
-                        .setStatus(OnlineStatus.DO_NOT_DISTURB).build();
+                        .setActivity(loadingActivity)
+                        .setStatus(loadingStatus).build();
             } catch (LoginException e) {
                 e.printStackTrace();
                 jda = null;
+                discordVerifyBot.getLogger().severe("Cloud not login.");
             }
+        }
+    }
 
+    public void disconnect(boolean now) {
+        if(discordVerifyBot.isReady()) {
+            if(now) jda.shutdownNow();
+            else jda.shutdown();
         }
     }
 
@@ -69,11 +80,19 @@ public class DiscordBot {
         return jda;
     }
 
-    public String getActivity() {
-        return activity;
+    public Activity getLoadedActivity() {
+        return loadedActivity;
     }
 
-    public String getActivityValue() {
-        return activityValue;
+    public Activity getLoadingActivity() {
+        return loadingActivity;
+    }
+
+    public OnlineStatus getLoadingStatus() {
+        return loadingStatus;
+    }
+
+    public OnlineStatus getLoadedStatus() {
+        return loadedStatus;
     }
 }

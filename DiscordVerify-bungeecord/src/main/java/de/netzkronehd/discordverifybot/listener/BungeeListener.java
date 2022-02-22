@@ -19,14 +19,14 @@ public class BungeeListener implements Listener {
     @EventHandler
     public void onLogin(PostLoginEvent e) {
         final BungeeDiscordPlayer bp = new BungeeDiscordPlayer(e.getPlayer());
-        discordVerifyBot.join(bp);
+        discordVerifyBot.join(bp, e);
     }
 
     @EventHandler
     public void onDisconnect(PlayerDisconnectEvent e) {
         final DiscordPlayer dp = discordVerifyBot.getPlayer(e.getPlayer().getUniqueId());
         if(dp != null) {
-            discordVerifyBot.leave(dp);
+            discordVerifyBot.leave(dp, e);
         }
     }
 

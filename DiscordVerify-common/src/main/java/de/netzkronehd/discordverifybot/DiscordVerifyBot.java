@@ -4,17 +4,33 @@ import de.netzkronehd.discordverifybot.api.DiscordVerifyApi;
 import de.netzkronehd.discordverifybot.api.PluginVersion;
 import de.netzkronehd.discordverifybot.bot.DiscordBot;
 import de.netzkronehd.discordverifybot.database.Database;
+import de.netzkronehd.discordverifybot.listener.DiscordListener;
 import de.netzkronehd.discordverifybot.manager.*;
 import de.netzkronehd.discordverifybot.message.MessageFormatter;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import de.netzkronehd.discordverifybot.service.CommandService;
 import de.netzkronehd.discordverifybot.service.EventService;
 import de.netzkronehd.discordverifybot.service.ThreadService;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
+import javax.security.auth.login.LoginException;
 import java.util.*;
 import java.util.logging.Logger;
 
 public class DiscordVerifyBot {
+
+    private final static GatewayIntent[] INTENTS = {
+            GatewayIntent.GUILD_INVITES,
+            GatewayIntent.DIRECT_MESSAGES,
+            GatewayIntent.GUILD_MESSAGES,
+            GatewayIntent.GUILD_MESSAGE_REACTIONS,
+            GatewayIntent.GUILD_VOICE_STATES,
+            GatewayIntent.GUILD_MEMBERS};
 
     private static DiscordVerifyBot instance;
 
@@ -55,14 +71,48 @@ public class DiscordVerifyBot {
     }
 
     public void onLoad() {
+        logger.info("Initialize and loading managers...");
+        configManager = new ConfigManager(this);
         databaseManager = new DatabaseManager(this);
+        discordCommandManager = new DiscordCommandManager(this);
+        groupManager = new GroupManager(this);
+        messageManager = new MessageManager(this);
+        verifyManager = new VerifyManager(this);
+
+        Manager.loadManagers();
+        logger.info("Managers initialized and loaded.");
+        logger.info("Loading DiscordBot...");
+        loadBot();
+
+    }
+
+    public void onReload() {
+        if(bot != null && bot.getJda() != null) bot.getJda().shutdownNow();
+        Manager.reloadManagers();
+        if(!configManager.getToken().equalsIgnoreCase("token")) {
+            loadBot();
+        } else logger.severe("Token can't be '"+configManager.getToken()+"'.");
+
+    }
+
+    private void loadBot() {
+        bot = new DiscordBot(this, configManager.getToken(), configManager.getLoadingActivity(), configManager.getLoadedActivity(), configManager.getGuildId(), configManager.getLoadingStatus(), configManager.getLoadedStatus());
+        bot.connect();
+
+
+    }
+
+    public void onDisable() {
+        if(bot != null) bot.disconnect(true);
     }
 
     public void setDatabase(Database database) {
         this.database = database;
     }
 
-    public void join(DiscordPlayer discordPlayer) {
+    public void join(DiscordPlayer discordPlayer, Object root) {
+        if(!(root.getClass().getSimpleName().equalsIgnoreCase("PlayerJoinEvent") || root.getClass().getSimpleName().equalsIgnoreCase("PostLoginEvent"))) return;
+
         playerCache.put(discordPlayer.getUuid(), discordPlayer);
         playerNameCache.put(discordPlayer.getName().toLowerCase(), discordPlayer);
 
@@ -78,7 +128,8 @@ public class DiscordVerifyBot {
 
     }
 
-    public void leave(DiscordPlayer discordPlayer) {
+    public void leave(DiscordPlayer discordPlayer, Object root) {
+        if(!(root.getClass().getSimpleName().equalsIgnoreCase("PlayerQuitEvent") || root.getClass().getSimpleName().equalsIgnoreCase("PlayerDisconnectEvent"))) return;
         playerCache.remove(discordPlayer.getUuid());
         playerNameCache.remove(discordPlayer.getName().toLowerCase());
     }
@@ -138,7 +189,7 @@ public class DiscordVerifyBot {
     }
 
     public boolean isReady() {
-        return (bot != null && bot.getJda() != null && !Objects.requireNonNull(bot.getJda().getPresence().getActivity(), "Activity can't be null").getName().equalsIgnoreCase("loading..."));
+        return (bot != null && bot.getJda() != null && !Objects.requireNonNull(bot.getJda().getPresence().getActivity(), "Activity can't be null").getName().equalsIgnoreCase(configManager.getLoadingActivity().getName()));
     }
 
     public DiscordVerifyApi getApi() {

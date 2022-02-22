@@ -21,8 +21,6 @@ public class VerifyManager extends Manager {
     private final HashMap<UUID, DiscordVerification> verifications;
     private final HashMap<String, DiscordVerification> verificationsByUserId;
 
-
-
     private final HashMap<UUID, String> requestsByDiscord;
     private final HashMap<String, UUID> requestsByMinecraft;
 
@@ -232,19 +230,19 @@ public class VerifyManager extends Manager {
 
 
     public DiscordVerification getVerification(UUID uuid) {
-        return null;
+        return verifications.get(uuid);
     }
 
     public DiscordVerification getVerification(String userId) {
-        return null;
+        return verificationsByUserId.get(userId);
     }
 
     public boolean isVerified(UUID uuid) {
-        return false;
+        return verifications.containsKey(uuid);
     }
 
     public boolean isVerified(String userId) {
-        return false;
+        return verificationsByUserId.containsKey(userId);
     }
 
     public HashMap<String, UUID> getRequestsByMinecraft() {

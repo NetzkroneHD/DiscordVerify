@@ -9,7 +9,7 @@ import java.io.IOException;
 
 public class MessageManager extends Manager {
 
-    private final File file;
+    private File file;
     private YamlConfiguration cfg;
 
     public MessageManager(DiscordVerifyBot discordVerifyBot) {
@@ -21,26 +21,27 @@ public class MessageManager extends Manager {
 
     @Override
     public void onLoad() {
-        createFile();
-        readFile();
+        file = new File("plugins/DiscordVerifyBot", "messages-"+DiscordVerifyBot.getInstance().getConfigManager().getLanguage()+".yml");
+        if(getResource("messages-"+discordVerifyBot.getConfigManager().getLanguage()+".yml") != null) {
+            saveResource("messages-"+discordVerifyBot.getConfigManager().getLanguage()+".yml", "plugins/DiscordVerifyBot", false);
+        } else {
+            if(!file.exists()) {
+                for(Message msg : Message.values()) {
+                    cfg.set(msg.getConfigKey(), msg.getDefaultValue());
+                }
+                try {
+                    cfg.save(file);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        cfg = YamlConfiguration.loadConfiguration(file);
     }
 
     @Override
     public void onReload() {
-        cfg = YamlConfiguration.loadConfiguration(file);
         onLoad();
-    }
-
-    @Override
-    public void createFile() {
-        for(Message msg : Message.values()) {
-            cfg.set(msg.getConfigKey(), msg.getDefaultValue());
-        }
-        try {
-            cfg.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     @Override

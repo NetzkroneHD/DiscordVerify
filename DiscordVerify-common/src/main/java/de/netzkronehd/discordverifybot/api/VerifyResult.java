@@ -6,10 +6,10 @@ public enum VerifyResult {
     FAILED,
     CANCELLED;
 
-    VerifyResult() {
-    }
+    VerifyResult() {}
 
     public boolean isSucceed() {
         return this.equals(SUCCESS);
     }
+
 }

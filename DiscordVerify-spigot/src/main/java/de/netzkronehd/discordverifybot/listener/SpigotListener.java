@@ -19,14 +19,14 @@ public class SpigotListener implements Listener {
     @EventHandler
     public void onJoin(PlayerJoinEvent e) {
         final SpigotDiscordPlayer sp = new SpigotDiscordPlayer(e.getPlayer());
-        discordVerifyBot.join(sp);
+        discordVerifyBot.join(sp, e);
     }
 
     @EventHandler
     public void onLeave(PlayerQuitEvent e) {
         final DiscordPlayer dp = discordVerifyBot.getPlayer(e.getPlayer().getUniqueId());
         if(dp != null) {
-            discordVerifyBot.leave(dp);
+            discordVerifyBot.leave(dp,e );
         }
     }
 
