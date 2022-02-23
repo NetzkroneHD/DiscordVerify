@@ -3,34 +3,20 @@ package de.netzkronehd.discordverifybot;
 import de.netzkronehd.discordverifybot.api.DiscordVerifyApi;
 import de.netzkronehd.discordverifybot.api.PluginVersion;
 import de.netzkronehd.discordverifybot.bot.DiscordBot;
+import de.netzkronehd.discordverifybot.commands.impl.DiscordVerifyCommand;
+import de.netzkronehd.discordverifybot.commands.impl.VerifyCommand;
 import de.netzkronehd.discordverifybot.database.Database;
-import de.netzkronehd.discordverifybot.listener.DiscordListener;
 import de.netzkronehd.discordverifybot.manager.*;
 import de.netzkronehd.discordverifybot.message.MessageFormatter;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import de.netzkronehd.discordverifybot.service.CommandService;
 import de.netzkronehd.discordverifybot.service.EventService;
 import de.netzkronehd.discordverifybot.service.ThreadService;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.JDABuilder;
-import net.dv8tion.jda.api.OnlineStatus;
-import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.requests.GatewayIntent;
-import net.dv8tion.jda.api.utils.cache.CacheFlag;
 
-import javax.security.auth.login.LoginException;
 import java.util.*;
 import java.util.logging.Logger;
 
 public class DiscordVerifyBot {
-
-    private final static GatewayIntent[] INTENTS = {
-            GatewayIntent.GUILD_INVITES,
-            GatewayIntent.DIRECT_MESSAGES,
-            GatewayIntent.GUILD_MESSAGES,
-            GatewayIntent.GUILD_MESSAGE_REACTIONS,
-            GatewayIntent.GUILD_VOICE_STATES,
-            GatewayIntent.GUILD_MEMBERS};
 
     private static DiscordVerifyBot instance;
 
@@ -51,7 +37,7 @@ public class DiscordVerifyBot {
     //Manager
     private ConfigManager configManager;
     private DatabaseManager databaseManager;
-    private DiscordCommandManager discordCommandManager;
+    private final DiscordCommandManager discordCommandManager;
     private GroupManager groupManager;
     private MessageManager messageManager;
     private VerifyManager verifyManager;
@@ -64,6 +50,8 @@ public class DiscordVerifyBot {
         this.messageFormatter = messageFormatter;
         this.commandService = commandService;
 
+        discordCommandManager = new DiscordCommandManager(this);
+
         playerCache = new HashMap<>();
         playerNameCache = new HashMap<>();
         api = new DiscordVerifyApi(this);
@@ -71,33 +59,50 @@ public class DiscordVerifyBot {
     }
 
     public void onLoad() {
+        final long before = System.currentTimeMillis();
+
         logger.info("Initialize and loading managers...");
+
         configManager = new ConfigManager(this);
         databaseManager = new DatabaseManager(this);
-        discordCommandManager = new DiscordCommandManager(this);
         groupManager = new GroupManager(this);
         messageManager = new MessageManager(this);
         verifyManager = new VerifyManager(this);
 
         Manager.loadManagers();
+
         logger.info("Managers initialized and loaded.");
+        logger.info("Loading DiscordBot...");
+
+        new VerifyCommand(this, "discordverify", "dcverify", "verify", "link", "dclink", "linkdiscord", "linkdc").register();
+        discordCommandManager.registerCommand(new DiscordVerifyCommand("!verify", this));
+
+        loadBot();
+
+        logger.info("System fully enabled after ("+(System.currentTimeMillis()-before)+"ms).");
+
+    }
+
+
+    public void onReload() {
+        if(bot != null && bot.getJda() != null) {
+            logger.info("Disabling jda...");
+            bot.getJda().shutdownNow();
+            logger.info("Jda successfully disabled.");
+        }
+        Manager.reloadManagers();
+
         logger.info("Loading DiscordBot...");
         loadBot();
 
     }
 
-    public void onReload() {
-        if(bot != null && bot.getJda() != null) bot.getJda().shutdownNow();
-        Manager.reloadManagers();
+    private void loadBot() {
         if(!configManager.getToken().equalsIgnoreCase("token")) {
-            loadBot();
+            bot = new DiscordBot(this, configManager.getToken(), configManager.getLoadingActivity(), configManager.getLoadedActivity(), configManager.getGuildId(), configManager.getLoadingStatus(), configManager.getLoadedStatus());
+            bot.connect();
         } else logger.severe("Token can't be '"+configManager.getToken()+"'.");
 
-    }
-
-    private void loadBot() {
-        bot = new DiscordBot(this, configManager.getToken(), configManager.getLoadingActivity(), configManager.getLoadedActivity(), configManager.getGuildId(), configManager.getLoadingStatus(), configManager.getLoadedStatus());
-        bot.connect();
 
 
     }

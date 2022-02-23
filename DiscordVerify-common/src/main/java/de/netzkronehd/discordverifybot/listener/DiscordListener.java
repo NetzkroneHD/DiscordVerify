@@ -34,6 +34,10 @@ public class DiscordListener extends ListenerAdapter {
             } else discordVerifyBot.getLogger().severe("Cloud not find role of the group '"+group.getId()+"'. Please check if this is the correct RoleId '"+group.getRoleId()+"'.");
         });
 
+        discordVerifyBot.getVerifyManager().getVerifications().forEach(dv ->
+                discordVerifyBot.getBot().getGuild().retrieveMemberById(dv.getDiscordId()).queue(dv::setCachedMember));
+
+        discordVerifyBot.getLogger().info("Discord-Bot successfully loaded.");
 
     }
 

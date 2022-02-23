@@ -5,6 +5,7 @@ import de.netzkronehd.discordverifybot.bot.DiscordBot;
 import de.netzkronehd.discordverifybot.commands.DiscordCommand;
 import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 
+import java.util.Collection;
 import java.util.UUID;
 
 public class DiscordVerifyApi {
@@ -21,6 +22,10 @@ public class DiscordVerifyApi {
 
     public DiscordVerification getVerification(String userId) {
         return discordVerifyBot.getVerifyManager().getVerification(userId);
+    }
+
+    public Collection<DiscordVerification> getVerifications() {
+        return discordVerifyBot.getVerifyManager().getVerifications();
     }
 
     public void registerCommand(DiscordCommand dc) {

@@ -28,14 +28,16 @@ public abstract class Command {
     public abstract void onExecute(DiscordPlayer dp, String[] args);
     public abstract List<String> onTabComplete(DiscordPlayer dp, String[] args);
 
+    public void register() {
+        discordVerifyBot.getCommandService().registerCommand(this);
+    }
+
     public String getName() {
         return name;
     }
-
     public List<String> getAlias() {
         return alias;
     }
-
     public DiscordVerifyBot getDiscordVerifyBot() {
         return discordVerifyBot;
     }

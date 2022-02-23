@@ -10,9 +10,7 @@ import net.dv8tion.jda.api.entities.Role;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.function.Consumer;
 import java.util.logging.Level;
 
@@ -251,6 +249,10 @@ public class VerifyManager extends Manager {
 
     public HashMap<UUID, String> getRequestsByDiscord() {
         return requestsByDiscord;
+    }
+
+    public Collection<DiscordVerification> getVerifications() {
+        return Collections.unmodifiableCollection(verifications.values());
     }
 
 }

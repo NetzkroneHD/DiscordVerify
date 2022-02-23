@@ -12,6 +12,7 @@ public class DiscordVerification {
     private String name;
     private final String discordId;
     private final long timepoint;
+    private Member cachedMember;
 
     public DiscordVerification(UUID uuid, String name, String discordId, long timepoint) {
         this.uuid = uuid;
@@ -20,8 +21,14 @@ public class DiscordVerification {
         this.timepoint = timepoint;
     }
 
+
+
     public void setName(String name) {
         this.name = name;
+    }
+
+    public void setCachedMember(Member cachedMember) {
+        this.cachedMember = cachedMember;
     }
 
     public UUID getUuid() {
@@ -38,6 +45,10 @@ public class DiscordVerification {
 
     public long getTimepoint() {
         return timepoint;
+    }
+
+    public Member getCachedMember() {
+        return cachedMember;
     }
 
     public RestAction<Member> getMember() {
