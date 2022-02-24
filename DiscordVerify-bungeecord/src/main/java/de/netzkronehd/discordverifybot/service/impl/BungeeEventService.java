@@ -4,10 +4,13 @@ import de.netzkronehd.discordverifybot.DiscordVerifyBot;
 import de.netzkronehd.discordverifybot.commands.DiscordCommand;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 import de.netzkronehd.discordverifybot.service.EventService;
+import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageChannel;
 import net.dv8tion.jda.api.entities.User;
+
+import java.util.UUID;
 
 public class BungeeEventService implements EventService {
 
@@ -23,17 +26,22 @@ public class BungeeEventService implements EventService {
     }
 
     @Override
-    public void fireVerifiedEvent(DiscordPlayer discordPlayer, Member member) {
+    public void fireVerifiedEvent(DiscordPlayer discordPlayer, DiscordVerification verification) {
 
     }
 
     @Override
-    public boolean fireUnVerifyEvent(DiscordPlayer discordPlayer, Member member) {
+    public boolean fireUnVerifyEvent(UUID uuid, String userId) {
         return false;
     }
 
     @Override
-    public void fireUnVerifiedEvent(DiscordPlayer discordPlayer, Member member) {
+    public void fireUnVerifiedEvent(UUID uuid, String userId) {
+
+    }
+
+    @Override
+    public void fireVerificationUpdatedEvent(DiscordVerification verification) {
 
     }
 

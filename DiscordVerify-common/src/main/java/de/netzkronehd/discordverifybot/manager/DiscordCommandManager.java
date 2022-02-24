@@ -44,10 +44,13 @@ public class DiscordCommandManager extends Manager {
             final DiscordCommand dc = commands.get(argsWithCommand[0].toLowerCase());
             if (dc != null) {
                 final String[] args = Arrays.copyOfRange(argsWithCommand, 1, argsWithCommand.length);
-                if(messageChannel instanceof TextChannel) {
-                    dc.onExecute(member, (TextChannel) message, args, message);
-                } else if(messageChannel instanceof PrivateChannel) {
-                    dc.onExecute(user, (PrivateChannel) message, args, message);
+
+                if(!discordVerifyBot.getEventService().fireDiscordCommandPreProcessEvent(dc, user, messageChannel, args, message)) {
+                    if(messageChannel instanceof TextChannel) {
+                        dc.onExecute(member, (TextChannel) message, args, message);
+                    } else if(messageChannel instanceof PrivateChannel) {
+                        dc.onExecute(user, (PrivateChannel) message, args, message);
+                    }
                 }
 
 
@@ -55,10 +58,13 @@ public class DiscordCommandManager extends Manager {
         } else {
             final DiscordCommand dc = commands.get(commandLine.toLowerCase());
             if (dc != null) {
-                if(messageChannel instanceof TextChannel) {
-                    dc.onExecute(member, (TextChannel) message, commandLine.split(" "), message);
-                } else if(messageChannel instanceof PrivateChannel) {
-                    dc.onExecute(user, (PrivateChannel) message, commandLine.split(" "), message);
+                final String[] args = commandLine.split(" ");
+                if(!discordVerifyBot.getEventService().fireDiscordCommandPreProcessEvent(dc, user, messageChannel, args, message)) {
+                    if(messageChannel instanceof TextChannel) {
+                        dc.onExecute(member, (TextChannel) message, args, message);
+                    } else if(messageChannel instanceof PrivateChannel) {
+                        dc.onExecute(user, (PrivateChannel) message, args, message);
+                    }
                 }
             }
         }

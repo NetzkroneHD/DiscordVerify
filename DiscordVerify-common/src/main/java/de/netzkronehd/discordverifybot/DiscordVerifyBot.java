@@ -103,8 +103,6 @@ public class DiscordVerifyBot {
             bot.connect();
         } else logger.severe("Token can't be '"+configManager.getToken()+"'.");
 
-
-
     }
 
     public void onDisable() {
@@ -116,7 +114,7 @@ public class DiscordVerifyBot {
     }
 
     public void join(DiscordPlayer discordPlayer, Object root) {
-        if(!(root.getClass().getSimpleName().equalsIgnoreCase("PlayerJoinEvent") || root.getClass().getSimpleName().equalsIgnoreCase("PostLoginEvent"))) return;
+        if(!(root.getClass().getName().equalsIgnoreCase("org.bukkit.event.player.PlayerJoinEvent") || root.getClass().getName().equalsIgnoreCase("net.md_5.bungee.api.event.PostLoginEvent"))) return;
 
         playerCache.put(discordPlayer.getUuid(), discordPlayer);
         playerNameCache.put(discordPlayer.getName().toLowerCase(), discordPlayer);
@@ -134,7 +132,7 @@ public class DiscordVerifyBot {
     }
 
     public void leave(DiscordPlayer discordPlayer, Object root) {
-        if(!(root.getClass().getSimpleName().equalsIgnoreCase("PlayerQuitEvent") || root.getClass().getSimpleName().equalsIgnoreCase("PlayerDisconnectEvent"))) return;
+        if(!(root.getClass().getName().equalsIgnoreCase("org.bukkit.event.player.PlayerQuitEvent") || root.getClass().getName().equalsIgnoreCase("net.md_5.bungee.api.event.PlayerDisconnectEvent"))) return;
         playerCache.remove(discordPlayer.getUuid());
         playerNameCache.remove(discordPlayer.getName().toLowerCase());
     }

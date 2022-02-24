@@ -38,6 +38,7 @@ public class DiscordListener extends ListenerAdapter {
                 discordVerifyBot.getBot().getGuild().retrieveMemberById(dv.getDiscordId()).queue(dv::setCachedMember));
 
         discordVerifyBot.getLogger().info("Discord-Bot successfully loaded.");
+        discordVerifyBot.getEventService().fireReadyEvent(discordVerifyBot);
 
     }
 

@@ -73,6 +73,8 @@ public class VerifyManager extends Manager {
                     verificationsByUserId.put(dv.getDiscordId(), dv);
                     dp.setVerification(dv);
                     if(callback != null) callback.accept(VerifyResult.SUCCESS);
+                    discordVerifyBot.getEventService().fireVerifiedEvent(dp, dv);
+
                 } catch (SQLException e) {
                     e.printStackTrace();
                     if(callback != null) callback.accept(VerifyResult.FAILED);
@@ -103,6 +105,7 @@ public class VerifyManager extends Manager {
                 }
                 discordVerifyBot.getBot().getGuild().retrieveMemberById(userId).queue(member -> discordVerifyBot.getGroupManager().removeGroups(member));
                 if(callback != null) callback.accept(VerifyResult.SUCCESS);
+                discordVerifyBot.getEventService().fireUnVerifiedEvent(dv.getUuid(), dv.getDiscordId());
             } catch (Exception e) {
                 e.printStackTrace();
                 if(callback != null) callback.accept(VerifyResult.FAILED);
@@ -126,6 +129,7 @@ public class VerifyManager extends Manager {
                 }
                 discordVerifyBot.getGroupManager().removeGroups(member);
                 if(callback != null) callback.accept(VerifyResult.SUCCESS);
+                discordVerifyBot.getEventService().fireUnVerifiedEvent(dv.getUuid(), dv.getDiscordId());
             } catch (Exception e) {
                 e.printStackTrace();
                 if(callback != null) callback.accept(VerifyResult.FAILED);
@@ -149,6 +153,7 @@ public class VerifyManager extends Manager {
                 }
                 dv.getMember().queue(member -> discordVerifyBot.getGroupManager().removeGroups(member));
                 if(callback != null) callback.accept(VerifyResult.SUCCESS);
+                discordVerifyBot.getEventService().fireUnVerifiedEvent(dv.getUuid(), dv.getDiscordId());
             } catch (Exception e) {
                 e.printStackTrace();
                 if(callback != null) callback.accept(VerifyResult.FAILED);
@@ -191,6 +196,8 @@ public class VerifyManager extends Manager {
                     }
                 }
                 if(callback != null) callback.accept(VerifyResult.SUCCESS);
+                discordVerifyBot.getEventService().fireVerificationUpdatedEvent(dp.getVerification());
+
             } catch (Exception e) {
                 e.printStackTrace();
                 if(callback != null) callback.accept(VerifyResult.FAILED);
