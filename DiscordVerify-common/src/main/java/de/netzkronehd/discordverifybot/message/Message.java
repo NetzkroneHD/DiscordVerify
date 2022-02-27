@@ -20,6 +20,9 @@ public enum Message {
     DID_NOT_RECEIVED_A_REQUEST("%prefix%You didn't received a request.", false),
     ALREADY_VERIFIED("%prefix%You're already verified.", false),
     SEARCHING_USER("%prefix%Searching user...", false),
+    HELP("", false),
+    HELP_ADMIN("%prefix%&7Wrong syntax please use: &e/dcvadmin reload", false),
+
     //DISCORD
     DISCORD_SUCCESSFULLY_LINKED("You successfully linked your account with `%name%`.",true),
     DISCORD_FAILED_TO_VERIFY("The linking with `%name%` was cancelled.",true),
@@ -33,7 +36,12 @@ public enum Message {
     DISCORD_SUCCESSFULLY_DENIED_REQUEST("You successfully denied the request.", true),
     DISCORD_PLAYER_RECEIVED_REQUEST("`%name%` received your request.", true),
     DISCORD_PLAYER_ALREADY_RECEIVED_REQUEST("That player has already received a request.", true),
-    DISCORD_CAN_NOT_FIND_PLAYER("Cloud not find player `%name%`.", true),
+    DISCORD_CAN_NOT_FIND_PLAYER("Could not find player `%name%`.", true),
+
+    //PLACEHOLDER
+    PLACEHOLDER_WRONG_USAGE("", false),
+    PLACEHOLDER_PLAYER_IS_OFFLINE("", false),
+    PLACEHOLDER_NOT_VERIFIED("", false),
 
     ;
 

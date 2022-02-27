@@ -9,6 +9,8 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Objects;
+import java.util.logging.Level;
 
 public class ConfigManager extends Manager {
 
@@ -48,11 +50,16 @@ public class ConfigManager extends Manager {
             cfg.set("Language", "EN");
             cfg.set("Multiple-Groups", false);
             cfg.set("Bot.Token", "token");
-            cfg.set("Bot.Loading-Activity-Method", "");
-            cfg.set("Bot.Loading-Activity-Value", "");
-            cfg.set("Bot.Loaded-Activity-Method", "");
-            cfg.set("Bot.Loaded-Activity-Value", "");
 
+            cfg.set("Bot.GuildId", "-1");
+
+            cfg.set("Bot.Loading.Activity-Method", "playing");
+            cfg.set("Bot.Loading.Activity-Value", "loading...");
+            cfg.set("Bot.Loading.Status", OnlineStatus.DO_NOT_DISTURB.name());
+
+            cfg.set("Bot.Loaded.Activity-Method", "playing");
+            cfg.set("Bot.Loaded.Activity-Value", "Made by NetzkroneHD");
+            cfg.set("Bot.Loaded.Status", OnlineStatus.ONLINE.name());
             try {
                 cfg.save(file);
             } catch (IOException e) {
@@ -68,16 +75,38 @@ public class ConfigManager extends Manager {
         token = cfg.getString("Bot-Token");
         multipleGroups = cfg.getBoolean("Multiple-Groups");
 
-
         try {
-            final Method ac = Activity.class.getMethod(cfg.getString("Bot.Loading-Activity-Method"), String.class);
+            final Method ac = Activity.class.getMethod(Objects.requireNonNull(cfg.getString("Bot.Loading-Activity-Method")), String.class);
             ac.setAccessible(true);
             loadingActivity = (Activity) ac.invoke(this, cfg.getString("Bot.Loading-Activity-Value"));
-
         } catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException ex) {
-            loadingActivity = Activity.playing(cfg.getString("Bot.Loading-Activity-Value"));
-            discordVerifyBot.getBot().getDiscordVerifyBot().getLogger().warning("Cloud not find method '"+cfg.getString("Bot.Loading-Activity-Method")+"', using 'playing' instead.");
+            loadingActivity = Activity.playing(Objects.requireNonNull(cfg.getString("Bot.Loading-Activity-Value")));
+            discordVerifyBot.getBot().getDiscordVerifyBot().getLogger().warning("Could not find method '"+cfg.getString("Bot.Loading-Activity-Method")+"', using 'playing' instead.");
         }
+
+        try {
+            final Method ac = Activity.class.getMethod(Objects.requireNonNull(cfg.getString("Bot.Loaded-Activity-Method")), String.class);
+            ac.setAccessible(true);
+            loadedActivity = (Activity) ac.invoke(this, cfg.getString("Bot.Loaded-Activity-Value"));
+        } catch (NoSuchMethodException | SecurityException | IllegalAccessException | InvocationTargetException ex) {
+            loadedActivity = Activity.playing(Objects.requireNonNull(cfg.getString("Bot.Loaded-Activity-Value")));
+            discordVerifyBot.getBot().getDiscordVerifyBot().getLogger().warning("Could not find method '"+cfg.getString("Bot.Loading-Loaded-Method")+"', using 'playing' instead.");
+        }
+
+        loadingStatus = OnlineStatus.fromKey(cfg.getString("Bot.Loading.Status"));
+        loadedStatus = OnlineStatus.fromKey(cfg.getString("Bot.Loaded.Status"));
+
+        if(loadingStatus == OnlineStatus.UNKNOWN) {
+            log(Level.WARNING, "Loading.Status can't be '"+loadingStatus.name()+"'. Using 'ONLINE' instead.");
+            loadingStatus = OnlineStatus.ONLINE;
+        }
+
+        if(loadedStatus == OnlineStatus.UNKNOWN) {
+            log(Level.WARNING, "Loaded.Status can't be '"+loadedStatus.name()+"'. Using 'ONLINE' instead.");
+            loadedStatus = OnlineStatus.ONLINE;
+        }
+
+
     }
 
     public String getGuildId() {

@@ -48,7 +48,7 @@ public class DiscordBot {
             } catch (LoginException e) {
                 e.printStackTrace();
                 jda = null;
-                discordVerifyBot.getLogger().severe("Cloud not login.");
+                discordVerifyBot.getLogger().severe("Could not login.");
             }
         }
     }

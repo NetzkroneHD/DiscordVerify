@@ -23,7 +23,7 @@ public class DiscordListener extends ListenerAdapter {
         e.getJDA().getPresence().setActivity(discordVerifyBot.getBot().getLoadedActivity());
         discordVerifyBot.getBot().setGuild(e.getJDA().getGuildById(discordVerifyBot.getBot().getGuildId()));
         if(discordVerifyBot.getBot().getGuild() == null) {
-            discordVerifyBot.getLogger().severe("Cloud not find guild '"+discordVerifyBot.getBot().getGuildId()+"'.");
+            discordVerifyBot.getLogger().severe("Could not find guild '"+discordVerifyBot.getBot().getGuildId()+"'.");
             return;
         }
 
@@ -31,7 +31,7 @@ public class DiscordListener extends ListenerAdapter {
             final Role role = discordVerifyBot.getBot().getGuild().getRoleById(group.getRoleId());
             if(role != null) {
                 group.setRole(role);
-            } else discordVerifyBot.getLogger().severe("Cloud not find role of the group '"+group.getId()+"'. Please check if this is the correct RoleId '"+group.getRoleId()+"'.");
+            } else discordVerifyBot.getLogger().severe("Could not find role of the group '"+group.getId()+"'. Please check if this is the correct RoleId '"+group.getRoleId()+"'.");
         });
 
         discordVerifyBot.getVerifyManager().getVerifications().forEach(dv ->

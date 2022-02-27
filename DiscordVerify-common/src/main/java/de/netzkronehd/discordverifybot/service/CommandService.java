@@ -4,6 +4,6 @@ import de.netzkronehd.discordverifybot.commands.Command;
 
 public interface CommandService {
 
-    void registerCommand(Command dc);
+    void registerCommand(Command command);
 
 }

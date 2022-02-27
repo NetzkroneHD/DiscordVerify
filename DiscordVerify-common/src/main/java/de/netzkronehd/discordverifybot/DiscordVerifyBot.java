@@ -4,6 +4,7 @@ import de.netzkronehd.discordverifybot.api.DiscordVerifyApi;
 import de.netzkronehd.discordverifybot.api.PluginVersion;
 import de.netzkronehd.discordverifybot.bot.DiscordBot;
 import de.netzkronehd.discordverifybot.commands.impl.DiscordVerifyCommand;
+import de.netzkronehd.discordverifybot.commands.impl.VerifyAdminCommand;
 import de.netzkronehd.discordverifybot.commands.impl.VerifyCommand;
 import de.netzkronehd.discordverifybot.database.Database;
 import de.netzkronehd.discordverifybot.manager.*;
@@ -74,6 +75,7 @@ public class DiscordVerifyBot {
         logger.info("Managers initialized and loaded.");
         logger.info("Loading DiscordBot...");
 
+        new VerifyAdminCommand(this, "discordverifyadmin", "dcverifyadmin", "dcvadmin").register();
         new VerifyCommand(this, "discordverify", "dcverify", "verify", "link", "dclink", "linkdiscord", "linkdc").register();
         discordCommandManager.registerCommand(new DiscordVerifyCommand("!verify", this));
 

@@ -51,6 +51,11 @@ public class DiscordVerification {
         return cachedMember;
     }
 
+    public String getCachedMemberName() {
+        if(cachedMember != null) return cachedMember.getUser().getName()+"#"+cachedMember.getUser().getDiscriminator();
+        return null;
+    }
+
     public RestAction<Member> getMember() {
         return DiscordVerifyBot.getInstance().getBot().getGuild().retrieveMemberById(discordId);
     }

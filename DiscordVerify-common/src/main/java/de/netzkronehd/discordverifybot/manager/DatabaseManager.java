@@ -64,7 +64,7 @@ public class DatabaseManager extends Manager {
                 db.update("CREATE TABLE IF NOT EXISTS discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT, UNIQUE KEY(uuid, discordId))");
             } catch (SQLException e) {
                 e.printStackTrace();
-                log(Level.SEVERE, "Cloud not create MySQL-Connection: "+e);
+                log(Level.SEVERE, "Could not create MySQL-Connection: "+e);
             }
 
         } else {
@@ -84,7 +84,7 @@ public class DatabaseManager extends Manager {
                 db.update("CREATE TABLE IF NOT EXISTS discordVerifications(uuid VARCHAR(64), name TEXT, discordId TEXT, timepoint TEXT)");
             } catch (SQLException e) {
                 e.printStackTrace();
-                log(Level.SEVERE, "Cloud not create SQLite-Connection: "+e);
+                log(Level.SEVERE, "Could not create SQLite-Connection: "+e);
             }
 
         }

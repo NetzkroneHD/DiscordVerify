@@ -83,7 +83,7 @@ public class GroupManager extends Manager {
             groups.put(group.getId(), group);
         }
         defaultGroup = groups.get("groups");
-        if(defaultGroup == null) log(Level.SEVERE, "Cloud not find default group.");
+        if(defaultGroup == null) log(Level.SEVERE, "Could not find default group.");
 
     }
 

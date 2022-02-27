@@ -71,6 +71,7 @@ public class VerifyManager extends Manager {
                             "('"+dv.getUuid()+"', '"+dv.getName()+"', '"+dv.getDiscordId()+"', '"+dv.getTimepoint()+"')");
                     verifications.put(dv.getUuid(), dv);
                     verificationsByUserId.put(dv.getDiscordId(), dv);
+                    dv.setCachedMember(member);
                     dp.setVerification(dv);
                     if(callback != null) callback.accept(VerifyResult.SUCCESS);
                     discordVerifyBot.getEventService().fireVerifiedEvent(dp, dv);
@@ -178,7 +179,7 @@ public class VerifyManager extends Manager {
                             final Role role = member.getGuild().getRoleById(group.getRoleId());
                             if(role != null) {
                                 member.getGuild().removeRoleFromMember(member, group.getRole()).queue();
-                            } else log(Level.SEVERE, "Cloud not find role '"+group.getRoleId()+"'");
+                            } else log(Level.SEVERE, "Could not find role '"+group.getRoleId()+"'");
                         }
                     }
                 }
@@ -191,7 +192,7 @@ public class VerifyManager extends Manager {
                             final Role role = member.getGuild().getRoleById(group.getRoleId());
                             if(role != null) {
                                 member.getGuild().addRoleToMember(member, group.getRole()).queue();
-                            } else log(Level.SEVERE, "Cloud not find role '"+group.getRoleId()+"'");
+                            } else log(Level.SEVERE, "Could not find role '"+group.getRoleId()+"'");
                         }
                     }
                 }

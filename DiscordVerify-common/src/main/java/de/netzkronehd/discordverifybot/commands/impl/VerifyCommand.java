@@ -30,20 +30,20 @@ public class VerifyCommand extends Command {
                                     if(verifyResult.isSucceed()) {
                                         member.getUser().openPrivateChannel().queue(privateChannel ->
                                                 privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_SUCCESSFULLY_LINKED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
-                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_LINKED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)));
+                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_LINKED)));
                                     } else {
                                         member.getUser().openPrivateChannel().queue(privateChannel ->
                                                 privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_FAILED_TO_VERIFY, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
-                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_VERIFY, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)));
+                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_VERIFY)));
                                     }
                                 });
                             });
                         } else {
                             discordVerifyBot.getVerifyManager().getRequestsByDiscord().remove(dp.getUuid());
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED, dp.getName(), null, null);
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED);
                         }
-                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST, dp.getName(), null, null);
-                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED, dp.getName(), null, null);
+                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST);
+                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED);
             } else if(args[0].equalsIgnoreCase("deny")) {
                 if (!dp.isVerified()) {
                     final String userId = discordVerifyBot.getVerifyManager().getRequestsByDiscord().get(dp.getUuid());
@@ -52,13 +52,13 @@ public class VerifyCommand extends Command {
                             discordVerifyBot.getBot().getGuild().retrieveMemberById(userId).queue(member ->
                                     member.getUser().openPrivateChannel().queue(privateChannel ->
                                             privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_PLAYER_DENIED_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
-                                                    discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_DENIED_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null))));
+                                                    discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_DENIED_REQUEST))));
                         } else {
                             discordVerifyBot.getVerifyManager().getRequestsByDiscord().remove(dp.getUuid());
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.USER_ALREADY_VERIFIED, dp.getName(), null, null);
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.USER_ALREADY_VERIFIED);
                         }
-                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST, dp.getName(), null, null);
-                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED, dp.getName(), null, null);
+                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST);
+                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED);
             } else if(args[0].equalsIgnoreCase("delete")) {
                 if(dp.isVerified()) {
                     dp.getVerification().getMember().queue(member -> discordVerifyBot.getVerifyManager().unVerify(dp.getUuid(), verifyResult -> {
@@ -67,27 +67,27 @@ public class VerifyCommand extends Command {
                                     privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_LINK_WAS_REMOVED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
                                             discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UNLINKED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)));
                         } else {
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null);
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED);
                         }
                     }), throwable -> discordVerifyBot.getVerifyManager().unVerify(dp.getUuid(), verifyResult -> {
                         if(verifyResult.isSucceed()) {
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UNLINKED, dp.getName(), null, null);
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UNLINKED);
                         } else {
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED, dp.getName(), null, null);
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED);
                         }
                     }));
-                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.NOT_VERIFIED, dp.getName(), null, null);
+                } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.NOT_VERIFIED);
             } else if(args[0].equalsIgnoreCase("update")) {
-                discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UPDATING, dp.getName(), null, null);
+                discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UPDATING);
                 discordVerifyBot.getThreadService().runAsync(() ->
                         discordVerifyBot.getVerifyManager().updateVerification(dp, verifyResult -> {
                     if(verifyResult.isSucceed()) {
-                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UPDATED, dp.getName(), null, null);
-                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_UPDATE, dp.getName(), null, null);
+                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UPDATED);
+                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_UPDATE);
                 }));
 
             } else if(args[0].contains("#")) {
-                dp.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.SEARCHING_USER, dp.getName(), null, null));
+                discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UPDATED);
                 discordVerifyBot.getBot().getGuild().loadMembers().onSuccess(members -> {
                     for(Member member : members) {
                         if((member.getUser().getName()+"#"+member.getUser().getDiscriminator()).equals(args[0])) {
@@ -116,7 +116,7 @@ public class VerifyCommand extends Command {
     }
 
     private void sendHelp(DiscordPlayer dp) {
-
+        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.HELP);
     }
 
 }

@@ -5,6 +5,7 @@ import de.netzkronehd.discordverifybot.commands.Command;
 import de.netzkronehd.discordverifybot.message.Message;
 import de.netzkronehd.discordverifybot.player.DiscordPlayer;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class VerifyAdminCommand extends Command {
@@ -19,14 +20,14 @@ public class VerifyAdminCommand extends Command {
             if(args.length == 1) {
                 if(args[0].equalsIgnoreCase("reload")) {
                     final long before = System.currentTimeMillis();
+                    dp.sendMessage(Message.PREFIX+"§7Reloading...");
                     discordVerifyBot.getThreadService().runAsync(() -> {
-                        dp.sendMessage(Message.PREFIX+"Reloading...");
                         try {
                             discordVerifyBot.onReload();
-                            dp.sendMessage(Message.PREFIX+"Reloaded after "+(System.currentTimeMillis()-before)+"ms.");
+                            dp.sendMessage(Message.PREFIX+"§7Reloaded after §e"+(System.currentTimeMillis()-before)+"ms§7.");
                         } catch (Exception ex) {
                             ex.printStackTrace();
-                            dp.sendMessage(Message.PREFIX+"&cAn error occurred while reloading, please check the console for details.");
+                            dp.sendMessage(Message.PREFIX+"§cAn error occurred while reloading, please check the console for details.");
                         }
                     });
                 } else sendHelp(dp);
@@ -36,10 +37,18 @@ public class VerifyAdminCommand extends Command {
 
     @Override
     public List<String> onTabComplete(DiscordPlayer dp, String[] args) {
-        return null;
+        final List<String> tabs = new ArrayList<>();
+        if(dp.hasPermission("discordverify.verifyadmin")) {
+            if(args.length == 1) {
+                args[0] = args[0].toLowerCase();
+                if("reload".startsWith(args[0])) tabs.add("reload");
+
+            }
+        }
+        return tabs;
     }
 
     private void sendHelp(DiscordPlayer dp) {
-
+        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.HELP_ADMIN);
     }
 }

@@ -26,6 +26,10 @@ public abstract class MessageFormatter {
         dp.sendMessage(placePlaceholderApi(format(message.getValue(), name, member, groups), dp));
     }
 
+    public void sendMessage(DiscordPlayer dp, Message message) {
+        sendMessage(dp, message, dp.getName(), (dp.isVerified() ? dp.getVerification().getCachedMemberName():null), null);
+    }
+
     public abstract String placePlaceholderApi(String input, DiscordPlayer receiver);
 
     public String translateColor(String message) {
