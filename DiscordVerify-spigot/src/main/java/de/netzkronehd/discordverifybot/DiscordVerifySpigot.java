@@ -2,6 +2,7 @@ package de.netzkronehd.discordverifybot;
 
 import de.netzkronehd.discordverifybot.api.PluginVersion;
 import de.netzkronehd.discordverifybot.message.SpigotMessageFormatter;
+import de.netzkronehd.discordverifybot.placeholder.DiscordVerifyExpansion;
 import de.netzkronehd.discordverifybot.service.impl.SpigotCommandService;
 import de.netzkronehd.discordverifybot.service.impl.SpigotEventService;
 import de.netzkronehd.discordverifybot.service.impl.SpigotThreadService;
@@ -23,6 +24,8 @@ public final class DiscordVerifySpigot extends JavaPlugin {
     @Override
     public void onEnable() {
         discordVerifyBot.onLoad();
+
+        new DiscordVerifyExpansion(discordVerifyBot).register();
     }
 
     @Override

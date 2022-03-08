@@ -2,7 +2,7 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+
 
     <parent>
         <groupId>de.netzkronehd</groupId>
@@ -10,10 +10,12 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
+    <modelVersion>4.0.0</modelVersion>
+
     <artifactId>DiscordVerify-spigot</artifactId>
     <packaging>jar</packaging>
 
-    <name>DiscordVerify Spigot</name>
+    <name>DiscordVerify-spigot</name>
 
     <build>
         <plugins>
@@ -34,6 +36,7 @@
         </resources>
     </build>
 
+
     <repositories>
         <repository>
             <id>spigotmc-repo</id>
@@ -47,15 +50,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>org.spigotmc</groupId>
-            <artifactId>spigot-api</artifactId>
-            <version>1.18.1-R0.1-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>de.netzkronehd</groupId>
             <artifactId>DiscordVerify-common</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.spigotmc</groupId>
+            <artifactId>spigot-api</artifactId>
+            <version>1.18.1-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
