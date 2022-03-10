@@ -22,7 +22,6 @@ public class VerifyManager extends Manager {
     private final HashMap<UUID, String> requestsByDiscord;
     private final HashMap<String, UUID> requestsByMinecraft;
 
-
     public VerifyManager(DiscordVerifyBot discordVerifyBot) {
         super(discordVerifyBot);
         requestsByDiscord = new HashMap<>();
@@ -91,7 +90,6 @@ public class VerifyManager extends Manager {
             throw new IllegalStateException("Player '"+dp.getName()+"' is already verified.");
         }
     }
-
 
     public void unVerify(String userId, Consumer<VerifyResult> callback) {
         final DiscordVerification dv = getVerification(userId);

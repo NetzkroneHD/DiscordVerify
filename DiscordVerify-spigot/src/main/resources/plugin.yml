@@ -1,8 +1,8 @@
 name: DiscordVerify
 version: '${project.version}'
 main: de.netzkronehd.discordverifybot.DiscordVerifySpigot
-api-version: 1.13
 author: NetzkroneHD
+api-version: 1.13
 softdepend:
   - PlaceholderAPI
 
@@ -15,3 +15,12 @@ commands:
       - dclink
       - linkdiscord
       - linkdc
+  discordverifyadmin:
+    aliases:
+      - dcverifyadmin
+      - dcvadmin
+      - dcva
+permissions:
+  discordverify.admin:
+    default: op
+    description: Permission to execute the admin command

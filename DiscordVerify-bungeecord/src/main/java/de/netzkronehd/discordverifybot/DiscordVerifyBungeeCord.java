@@ -23,13 +23,12 @@ public final class DiscordVerifyBungeeCord extends Plugin {
 
     @Override
     public void onEnable() {
-
         discordVerifyBot.onLoad();
     }
 
     @Override
     public void onDisable() {
-
+        discordVerifyBot.onDisable();
     }
 
     public DiscordVerifyBot getDiscordVerifyBot() {
@@ -39,4 +38,5 @@ public final class DiscordVerifyBungeeCord extends Plugin {
     public static DiscordVerifyBungeeCord getInstance() {
         return instance;
     }
+
 }

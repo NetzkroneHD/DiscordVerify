@@ -30,7 +30,7 @@ public final class DiscordVerifySpigot extends JavaPlugin {
 
     @Override
     public void onDisable() {
-
+        discordVerifyBot.onDisable();
     }
 
     public DiscordVerifyBot getDiscordVerifyBot() {
