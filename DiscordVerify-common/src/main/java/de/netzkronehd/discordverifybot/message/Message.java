@@ -14,14 +14,20 @@ public enum Message {
     FAILED_TO_UPDATE("%prefix%Update failed.", false),
     FAILED_TO_VERIFY("%prefix%The linking with&e `%member%`&7 was&c cancelled.", false),
     USER_DENIED_REQUEST("%prefix%&e%member%&c denied&7 your request.", false),
-    REQUEST_RECEIVED("%prefix%&e%member%&7 wants to link with your account.\n&a/verify accept &7 | &c/verify deny", false),
+    REQUEST("%prefix%&e%member%&7 wants to link with your account.\n&a/verify accept &7 | &c/verify deny", false),
     UNLINKING_PROCESS_FAILED("%prefix%The process of unlinking was&c cancelled&7.", false),
     USER_ALREADY_VERIFIED("%prefix%That user is already verified.", false),
+    USER_ALREADY_RECEIVED_REQUEST("%prefix%That user is already verified.", false),
     DID_NOT_RECEIVED_A_REQUEST("%prefix%You didn't received a request.", false),
+    LINK_WAS_REMOVED("%prefix%The link to&e %member%&7 was removed by the member.", false),
     ALREADY_VERIFIED("%prefix%You're already verified.", false),
+    YOU_ALREADY_RECEIVED_REQUEST("%prefix%You already received a request.", false),
     SEARCHING_USER("%prefix%Searching user...", false),
+    NO_USER_FOUND("%prefix%No user found.", false),
     HELP("", false),
     HELP_ADMIN("%prefix%&7Wrong syntax please use: &e/dcvadmin reload", false),
+    USER_RECEIVED_REQUEST("%prefix%&e%member%&7 received your request.", false),
+
 
     //DISCORD
     DISCORD_SUCCESSFULLY_LINKED("You successfully linked your account with `%name%`.",true),
@@ -37,11 +43,16 @@ public enum Message {
     DISCORD_PLAYER_RECEIVED_REQUEST("`%name%` received your request.", true),
     DISCORD_PLAYER_ALREADY_RECEIVED_REQUEST("That player has already received a request.", true),
     DISCORD_CAN_NOT_FIND_PLAYER("Could not find player `%name%`.", true),
+    DISCORD_UNLINKING_PROCESS_FAILED("The process of unlinking was cancelled.", true),
+    DISCORD_SUCCESSFULLY_UNLINKED("You successfully unlinked your account with `%name%`.", true),
+    DISCORD_YOU_ALREADY_RECEIVED_REQUEST("You already received a request.", false),
+    DISCORD_REQUEST("**%name%** wants to link with your account.\n`!verify accept` | `/verify deny`", true),
+    DISCORD_HELP("", true),
 
     //PLACEHOLDER
-    PLACEHOLDER_WRONG_USAGE("", false),
-    PLACEHOLDER_PLAYER_IS_OFFLINE("", false),
-    PLACEHOLDER_NOT_VERIFIED("", false),
+    PLACEHOLDER_WRONG_USAGE("Wrong placeholder syntax, place use 'member' or 'nickname'.", false),
+    PLACEHOLDER_PLAYER_IS_OFFLINE("That player is offline", false),
+    PLACEHOLDER_NOT_VERIFIED("That player is not verified", false),
 
     ;
 

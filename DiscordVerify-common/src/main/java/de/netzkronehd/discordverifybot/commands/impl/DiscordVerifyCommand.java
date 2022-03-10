@@ -39,35 +39,39 @@ public class DiscordVerifyCommand extends DiscordCommand {
                                         discordVerifyBot.getVerifyManager().verify(dp, member, verifyResult -> {
                                             if(verifyResult.isSucceed()) {
                                                 member.getUser().openPrivateChannel().queue(privateChannel ->
-                                                        privateChannel.sendMessage("You successfully linked your account with `"+dp.getName()+"`.").queue(message2 ->
-                                                                dp.sendMessage("You successfully linked your account with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7.")));
+                                                        privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_SUCCESSFULLY_LINKED, dp.getName(), null, null)).queue(message2 ->
+                                                                dp.sendMessage(de.netzkronehd.discordverifybot.message.Message.SUCCESSFULLY_LINKED)));
                                             } else {
                                                 member.getUser().openPrivateChannel().queue(privateChannel ->
-                                                        privateChannel.sendMessage("The linking with `"+dp.getName()+"` was cancelled.").queue(message2 ->
-                                                                dp.sendMessage("The linking with&e "+member.getUser().getName()+"#"+member.getUser().getName()+"&7 was&c cancelled.")));
+                                                        privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_FAILED_TO_VERIFY, dp.getName(), null, null)).queue(message2 ->
+                                                                discordVerifyBot.getMessageFormatter().sendMessage(dp, de.netzkronehd.discordverifybot.message.Message.FAILED_TO_VERIFY, dp.getName(), sender.getName()+"#"+sender.getDiscriminator(), null)));
                                             }
                                         }));
 
-                            } else messageChannel.sendMessage("That player is already verified.").queue();
+                            } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_ALREADY_VERIFIED, dp.getName(), null, null)).queue();
 
-                        } else messageChannel.sendMessage("That player is offline.").queue();
+                        } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_PLAYER_OFFLINE, null, null, null)).queue();
                         discordVerifyBot.getVerifyManager().getRequestsByMinecraft().remove(sender.getId());
 
-                    } else messageChannel.sendMessage("You didn't received a request.").queue();
-                } else messageChannel.sendMessage("You're already verified.").queue();
+                    } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_DID_NOT_RECEIVED_A_REQUEST, null, null, null)).queue();
+                } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_ALREADY_VERIFIED, null, null, null)).queue();
             } else if(args[0].equalsIgnoreCase("deny")) {
                 if(!discordVerifyBot.getVerifyManager().isVerified(sender.getId())) {
                     final UUID uuid = discordVerifyBot.getVerifyManager().getRequestsByMinecraft().get(sender.getId());
                     if(uuid != null) {
                         final DiscordPlayer dp = discordVerifyBot.getPlayer(uuid);
                         if(dp != null) {
-                            dp.sendMessage("&e"+sender.getName()+"#"+sender.getDiscriminator()+"&c denied&7 your request.");
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, de.netzkronehd.discordverifybot.message.Message.USER_DENIED_REQUEST, dp.getName(), sender.getName()+"#"+sender.getDiscriminator(), null);
+                            messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_SUCCESSFULLY_DENIED_REQUEST, dp.getName(), null, null)).queue();
+                        } else {
+                            messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_SUCCESSFULLY_DENIED_REQUEST, null, null, null)).queue();
                         }
-                        messageChannel.sendMessage("You successfully denied the request.").queue();
+
+
 
                         discordVerifyBot.getVerifyManager().getRequestsByMinecraft().remove(sender.getId());
-                    } else messageChannel.sendMessage("You didn't received a request.").queue();
-                } else messageChannel.sendMessage("You're already verified.").queue();
+                    } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_DID_NOT_RECEIVED_A_REQUEST, null, null, null)).queue();
+                } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.ALREADY_VERIFIED, null, null, null)).queue();
             } else if(args[0].equalsIgnoreCase("delete")) {
                 final DiscordVerification dv = discordVerifyBot.getApi().getVerification(sender.getId());
                 if(dv != null) {
@@ -75,25 +79,34 @@ public class DiscordVerifyCommand extends DiscordCommand {
                        if(verifyResult.isSucceed()) {
                            final DiscordPlayer dp = discordVerifyBot.getPlayer(dv.getUuid());
                            if(dp != null) {
-                               dp.sendMessage("The link to&e "+sender.getName()+"#"+sender.getDiscriminator()+"&7 was removed.");
+                               discordVerifyBot.getMessageFormatter().sendMessage(dp, de.netzkronehd.discordverifybot.message.Message.LINK_WAS_REMOVED, dp.getName(), dv.getCachedMemberName(), null);
                            }
+                           messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_SUCCESSFULLY_UNLINKED, dv.getName(), dv.getCachedMemberName(), null)).queue();
                        } else {
-                           messageChannel.sendMessage("You successfully unlinked your account with `"+dv.getName()+"`.").queue();
+                           messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_UNLINKING_PROCESS_FAILED, null, null, null)).queue();
                        }
                    });
-                } else messageChannel.sendMessage("You're not verified.").queue();
+                } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_NOT_VERIFIED, null, null, null)).queue();
             } else {
                 final DiscordPlayer dp = discordVerifyBot.getPlayer(args[0]);
                 if(dp != null) {
                     if(!dp.isVerified()) {
                         if(!discordVerifyBot.getVerifyManager().getRequestsByDiscord().containsKey(dp.getUuid())) {
-                            discordVerifyBot.getVerifyManager().getRequestsByDiscord().put(dp.getUuid(), sender.getId());
-                            dp.sendMessage("&e"+sender.getName()+"#"+sender.getDiscriminator()+"&7 wants to link with your account.\n&a/verify accept &7 | &c/verify deny");
-                            messageChannel.sendMessage("`"+dp.getName()+"` received your request.").queue();
-                        } else messageChannel.sendMessage("That player has already received a request.").queue();
-                    } else messageChannel.sendMessage("That player is already verified.").queue();
-                } else messageChannel.sendMessage("Cloud not find player `"+args[0]+"`.").queue();
+                            if(!discordVerifyBot.getVerifyManager().getRequestsByMinecraft().containsValue(dp.getUuid())) {
+                                discordVerifyBot.getVerifyManager().getRequestsByDiscord().put(dp.getUuid(), sender.getId());
+                                discordVerifyBot.getMessageFormatter().sendMessage(dp, de.netzkronehd.discordverifybot.message.Message.REQUEST, dp.getName(), sender.getName()+"#"+sender.getDiscriminator(), null);
+                                messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_PLAYER_RECEIVED_REQUEST, dp.getName(), null, null)).queue();
+
+                            } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_YOU_ALREADY_RECEIVED_REQUEST, dp.getName(), sender.getName()+"#"+sender.getDiscriminator(), null)).queue();
+                        } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_PLAYER_ALREADY_RECEIVED_REQUEST, dp.getName(), null, null)).queue();
+                    } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_PLAYER_ALREADY_VERIFIED, dp.getName(), null, null)).queue();
+                } else messageChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_PLAYER_ALREADY_VERIFIED, args[0], null, null)).queue();
             }
-        }
+        } else sendHelp(messageChannel);
     }
+
+    private void sendHelp(MessageChannel channel) {
+        channel.sendMessage(discordVerifyBot.getMessageFormatter().format(de.netzkronehd.discordverifybot.message.Message.DISCORD_HELP, null, null, null)).queue();
+    }
+
 }

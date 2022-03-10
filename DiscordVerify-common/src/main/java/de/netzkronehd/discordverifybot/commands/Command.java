@@ -16,13 +16,13 @@ public abstract class Command {
     public Command(String name, String... alias) {
         this.discordVerifyBot = DiscordVerifyBot.getInstance();
         this.name = name;
-        this.alias = Collections.unmodifiableList(Arrays.asList(alias));
+        this.alias = List.of(alias);
     }
 
     public Command(DiscordVerifyBot discordVerifyBot, String name, String... alias) {
         this.discordVerifyBot = discordVerifyBot;
         this.name = name;
-        this.alias = Collections.unmodifiableList(Arrays.asList(alias));
+        this.alias = List.of(alias);
     }
 
     public abstract void onExecute(DiscordPlayer dp, String[] args);

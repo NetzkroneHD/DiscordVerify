@@ -34,13 +34,13 @@ public class VerifyCommand extends Command {
                                     } else {
                                         member.getUser().openPrivateChannel().queue(privateChannel ->
                                                 privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_FAILED_TO_VERIFY, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
-                                                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_VERIFY)));
+                                                        dp.sendMessage(Message.FAILED_TO_VERIFY)));
                                     }
                                 });
                             });
                         } else {
                             discordVerifyBot.getVerifyManager().getRequestsByDiscord().remove(dp.getUuid());
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED);
+                            dp.sendMessage(Message.ALREADY_VERIFIED);
                         }
                     } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST);
                 } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED);
@@ -52,10 +52,10 @@ public class VerifyCommand extends Command {
                             discordVerifyBot.getBot().getGuild().retrieveMemberById(userId).queue(member ->
                                     member.getUser().openPrivateChannel().queue(privateChannel ->
                                             privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_PLAYER_DENIED_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message ->
-                                                    discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_DENIED_REQUEST))));
+                                                    dp.sendMessage(Message.SUCCESSFULLY_DENIED_REQUEST))));
                         } else {
                             discordVerifyBot.getVerifyManager().getRequestsByDiscord().remove(dp.getUuid());
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.USER_ALREADY_VERIFIED);
+                            dp.sendMessage(Message.USER_ALREADY_VERIFIED);
                         }
                     } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.DID_NOT_RECEIVED_A_REQUEST);
                 } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.ALREADY_VERIFIED);
@@ -71,9 +71,9 @@ public class VerifyCommand extends Command {
                         }
                     }), throwable -> discordVerifyBot.getVerifyManager().unVerify(dp.getUuid(), verifyResult -> {
                         if(verifyResult.isSucceed()) {
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UNLINKED);
+                            dp.sendMessage(Message.SUCCESSFULLY_UNLINKED);
                         } else {
-                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.UNLINKING_PROCESS_FAILED);
+                            dp.sendMessage(Message.UNLINKING_PROCESS_FAILED);
                         }
                     }));
                 } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.NOT_VERIFIED);
@@ -82,22 +82,37 @@ public class VerifyCommand extends Command {
                 discordVerifyBot.getThreadService().runAsync(() ->
                         discordVerifyBot.getVerifyManager().updateVerification(dp, verifyResult -> {
                     if(verifyResult.isSucceed()) {
-                        discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UPDATED);
-                    } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.FAILED_TO_UPDATE);
+                        dp.sendMessage(Message.SUCCESSFULLY_UPDATED);
+                    } else dp.sendMessage(Message.FAILED_TO_UPDATE);
                 }));
 
             } else if(args[0].contains("#")) {
-                discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SUCCESSFULLY_UPDATED);
-                discordVerifyBot.getBot().getGuild().loadMembers().onSuccess(members -> {
-                    for(Member member : members) {
-                        if((member.getUser().getName()+"#"+member.getUser().getDiscriminator()).equals(args[0])) {
+                if(!dp.isVerified()) {
+                    if(!discordVerifyBot.getVerifyManager().getRequestsByDiscord().containsKey(dp.getUuid())) {
+                        if(!discordVerifyBot.getVerifyManager().getRequestsByMinecraft().containsValue(dp.getUuid())) {
+                            discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.SEARCHING_USER);
+                            discordVerifyBot.getBot().getGuild().findMembers(member ->
+                                            ((member.getUser().getName()+"#"+member.getUser().getDiscriminator()).equals(args[0])))
+                                    .onSuccess(members -> {
+                                        if(!members.isEmpty()) {
+                                            final Member member = members.get(0);
+                                            if(!discordVerifyBot.getVerifyManager().isVerified(member.getId())) {
+                                                member.getUser().openPrivateChannel().queue(privateChannel -> {
+                                                    privateChannel.sendMessage(discordVerifyBot.getMessageFormatter().format(Message.DISCORD_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null)).queue(message -> discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.USER_RECEIVED_REQUEST, dp.getName(), member.getUser().getName()+"#"+member.getUser().getDiscriminator(), null));
+                                                    discordVerifyBot.getVerifyManager().getRequestsByMinecraft().put(member.getId(), dp.getUuid());
 
-                            return;
-                        }
-                    }
-                }).onError(throwable -> {
+                                                });
+                                            } else dp.sendMessage(Message.USER_ALREADY_VERIFIED);
+                                        } else dp.sendMessage(Message.NO_USER_FOUND);
+                                    })
+                                    .onError(throwable -> {
+                                        throwable.printStackTrace();
+                                        dp.sendMessage(Message.NO_USER_FOUND);
+                                    });
+                        } else dp.sendMessage(Message.USER_ALREADY_RECEIVED_REQUEST);
+                    } else dp.sendMessage(Message.YOU_ALREADY_RECEIVED_REQUEST);
+                } else dp.sendMessage(Message.ALREADY_VERIFIED);
 
-                });
             } else sendHelp(dp);
         }
     }

@@ -23,6 +23,10 @@ public abstract class DiscordCommand {
 
     public void onExecute(User sender, MessageChannel messageChannel, String[] args, Message message) {}
 
+    public void register() {
+        discordVerifyBot.getDiscordCommandManager().registerCommand(this);
+    }
+
     public String getCommand() {
         return command;
     }

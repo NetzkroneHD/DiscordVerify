@@ -1,5 +1,6 @@
 package de.netzkronehd.discordverifybot.player;
 
+import de.netzkronehd.discordverifybot.message.Message;
 import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.md_5.bungee.api.chat.TextComponent;
 
@@ -9,6 +10,7 @@ public interface DiscordPlayer {
 
     void sendMessage(String text);
     void sendMessage(TextComponent textComponent);
+    void sendMessage(Message message);
     boolean hasPermission(String permission);
     void setVerification(DiscordVerification verification);
 

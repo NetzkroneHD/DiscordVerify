@@ -18,7 +18,7 @@ public class VerifyAdminCommand extends Command {
     public void onExecute(DiscordPlayer dp, String[] args) {
         if(dp.hasPermission("discordverify.verifyadmin")) {
             if(args.length == 1) {
-                if(args[0].equalsIgnoreCase("reload")) {
+                if(args[0].equalsIgnoreCase("reload") || args[0].equalsIgnoreCase("rl")) {
                     final long before = System.currentTimeMillis();
                     dp.sendMessage(Message.PREFIX+"§7Reloading...");
                     discordVerifyBot.getThreadService().runAsync(() -> {
@@ -32,7 +32,7 @@ public class VerifyAdminCommand extends Command {
                     });
                 } else sendHelp(dp);
             } else sendHelp(dp);
-        } else discordVerifyBot.getMessageFormatter().sendMessage(dp, Message.NO_PERMISSIONS, null, null, null);
+        } else dp.sendMessage(Message.NO_PERMISSIONS);
     }
 
     @Override
@@ -42,7 +42,7 @@ public class VerifyAdminCommand extends Command {
             if(args.length == 1) {
                 args[0] = args[0].toLowerCase();
                 if("reload".startsWith(args[0])) tabs.add("reload");
-
+                if("rl".startsWith(args[0])) tabs.add("rl");
             }
         }
         return tabs;

@@ -135,7 +135,7 @@ public abstract class Manager {
     }
 
     public static void registerManager(Manager m) {
-        managers.put(m.getClass().getSimpleName().toLowerCase(), m);
+        managers.put(m.getClass().getName().toLowerCase(), m);
     }
 
     public static HashMap<String, Manager> getManagers() {

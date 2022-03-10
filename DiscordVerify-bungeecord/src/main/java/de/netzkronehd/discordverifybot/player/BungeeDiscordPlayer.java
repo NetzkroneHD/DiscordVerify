@@ -1,5 +1,7 @@
 package de.netzkronehd.discordverifybot.player;
 
+import de.netzkronehd.discordverifybot.DiscordVerifyBot;
+import de.netzkronehd.discordverifybot.message.Message;
 import de.netzkronehd.discordverifybot.verification.DiscordVerification;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.connection.ProxiedPlayer;
@@ -23,6 +25,11 @@ public class BungeeDiscordPlayer implements DiscordPlayer {
     @Override
     public void sendMessage(TextComponent textComponent) {
         proxiedPlayer.sendMessage(textComponent);
+    }
+
+    @Override
+    public void sendMessage(Message message) {
+        DiscordVerifyBot.getInstance().getMessageFormatter().sendMessage(this, message);
     }
 
     @Override

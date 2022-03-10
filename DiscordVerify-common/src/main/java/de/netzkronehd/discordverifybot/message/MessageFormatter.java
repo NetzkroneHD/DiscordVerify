@@ -15,10 +15,9 @@ public abstract class MessageFormatter {
     }
 
     public String format(String input, String name, String member, String groups) {
-        input = translateColor(input);
-        if(name != null) input = input.replace("%name%", name);
-        if(member != null) input = input.replace("%member%", member);
-        if(groups != null) input = input.replace("%groups%", groups);
+        input = input.replace("%name%", (name != null ? name:""));
+        input = input.replace("%member%", (member != null ? member:""));
+        input = input.replace("%groups%", (groups != null ? groups:""));
         return input;
     }
 

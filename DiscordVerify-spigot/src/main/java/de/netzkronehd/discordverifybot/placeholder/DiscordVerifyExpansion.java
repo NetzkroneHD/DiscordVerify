@@ -61,6 +61,12 @@ public class DiscordVerifyExpansion extends PlaceholderExpansion {
                         return dp.getVerification().getCachedMemberName();
                     }
                 } else return Message.PLACEHOLDER_NOT_VERIFIED.toString();
+            } else if(params.equalsIgnoreCase("nickname")) {
+                if(dp.isVerified()) {
+                    if(dp.getVerification().getCachedMember() != null) {
+                        return dp.getVerification().getCachedMember().getNickname();
+                    }
+                } else return Message.PLACEHOLDER_NOT_VERIFIED.toString();
             }
         }
         return Message.PLACEHOLDER_WRONG_USAGE.toString();

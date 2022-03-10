@@ -75,9 +75,13 @@ public class DiscordVerifyBot {
         logger.info("Managers initialized and loaded.");
         logger.info("Loading DiscordBot...");
 
+        //mc
         new VerifyAdminCommand(this, "discordverifyadmin", "dcverifyadmin", "dcvadmin").register();
         new VerifyCommand(this, "discordverify", "dcverify", "verify", "link", "dclink", "linkdiscord", "linkdc").register();
-        discordCommandManager.registerCommand(new DiscordVerifyCommand("!verify", this));
+
+        //dc
+        new DiscordVerifyCommand("!verify", this).register();
+
 
         loadBot();
 
